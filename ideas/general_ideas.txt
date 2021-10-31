@@ -1,0 +1,47 @@
+Steps:
+
+1) Extract text from the image (e-text)
+2) Concatenate the given input text (i-text) with the extracted one (i-text)
+3) Train model
+
+Types of models:
+(7 singular models)
+e-text + i-text + image
+i-text + image
+e-text + image
+e-text + i-text 
+e-text
+i-text
+image
+
+Text language models:
+GPT-3, BERT, albert, roberta 
+One of the best on multiple benchmarks:
+https://github.com/ZeroRin/BertGCN
+
+
+Image models:
+https://paperswithcode.com/paper/coatnet-marrying-convolution-and-attention
+https://github.com/xmu-xiaoma666/External-Attention-pytorch
+https://github.com/chinhsuanwu/coatnet-pytorch
+
+General multi modal models:
+https://github.com/nicolalandro/ntsnet-cub200
+https://github.com/artelab/Image-and-Text-fusion-for-UPMC-Food-101-using-BERT-and-CNNs
+
+
+Features ideas:
+use percent of the text on the whole image as a single feature
+
+Transformations ideas:
+eventually hash out an image Text with black blank
+
+Papers:
+https://scholar.smu.edu/cgi/viewcontent.cgi?article=1165&context=datasciencereview
+
+
+Medium & TDS articles:
+https://towardsdatascience.com/deep-multi-input-models-transfer-learning-for-image-and-word-tag-recognition-7ae0462253dc
+https://medium.com/airbnb-engineering/widetext-a-multimodal-deep-learning-framework-31ce2565880c
+
+

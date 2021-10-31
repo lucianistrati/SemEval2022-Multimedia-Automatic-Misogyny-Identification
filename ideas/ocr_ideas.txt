@@ -1,0 +1,4 @@
+Useful libraries:
+
+pytesseract
+google-ocr
