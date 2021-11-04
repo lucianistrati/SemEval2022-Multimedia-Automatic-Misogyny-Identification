@@ -7,6 +7,8 @@ import pandas as pd
 from typing import List
 
 import random
+import cv2
+
 
 def plot_wordcloud(text: str, label: int, classif_feature: str):
     title = f'{classif_feature}_texts_labelled_as_{label}'
@@ -37,10 +39,14 @@ def plot_images_stack(images: List, label: int, classif_feature: str):
     rows = 4
     for i in range(16):
         img = images[i]
+        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)  # BGR -> RGB
         fig.add_subplot(rows, columns, i + 1)
         plt.imshow(img)
+        # if i <= 3:
+        #     plt.title(title)
     plt.savefig("data/data_analysis/images/image_stacks/" + title + ".png")
-    plt.show()
+    plt.title(title)
+    # plt.show()
 
 def image_visualization(dataset_images, dataset_labels, label_idxs, label_columns):
     for labels_idx in label_idxs:
@@ -50,7 +56,8 @@ def image_visualization(dataset_images, dataset_labels, label_idxs, label_column
                 if int(labels_row[labels_idx]) == label:
                     selected_images.append(image)
             random.shuffle(selected_images)
-            plot_images_stack(images=selected_images, label=label, classif_feature=label_columns[labels_idx])
+            print(len(selected_images))
+            plot_images_stack(images=selected_images[:16], label=label, classif_feature=label_columns[labels_idx])
 
 
 def main():
@@ -60,8 +67,8 @@ def main():
     label_columns = ["misogynous", "shaming", "stereotype", "objectification", "violence"]
     label_idxs = list(range(5))
 
-    text_visualization(train_texts, train_labels, label_idxs, label_columns)
-    image_visualization(train_texts, train_labels, label_idxs, label_columns)
+    # text_visualization(train_texts, train_labels, label_idxs, label_columns)
+    image_visualization(train_images, train_labels, label_idxs, label_columns)
 
 if __name__ == "__main__":
     main()

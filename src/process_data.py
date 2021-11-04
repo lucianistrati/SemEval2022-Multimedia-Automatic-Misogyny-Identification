@@ -53,9 +53,9 @@ def parse_data_folder(folder_path: str, data_set: str, first_character: str):
     print(texts.shape)
     print(labels.shape)
 
-    np.save(folder_path + "/" + data_set + "_" + str(first_character) + "_images.npy", images, allow_pickle=True)
-    np.save(folder_path + "/" + data_set + "_" + str(first_character) + "_texts.npy", texts, allow_pickle=True)
-    np.save(folder_path + "/" + data_set + "_" + str(first_character) + "_labels.npy", labels, allow_pickle=True)
+    # np.save(folder_path + "/" + data_set + "_" + str(first_character) + "_images.npy", images, allow_pickle=True)
+    # np.save(folder_path + "/" + data_set + "_" + str(first_character) + "_texts.npy", texts, allow_pickle=True)
+    # np.save(folder_path + "/" + data_set + "_" + str(first_character) + "_labels.npy", labels, allow_pickle=True)
 
 def merge_train_npy_arrays(folder_path: str) -> None:
     images = []
@@ -80,9 +80,9 @@ def merge_train_npy_arrays(folder_path: str) -> None:
     print(texts.shape)
     print(labels.shape)
 
-    np.save("data/numpy_arrays/train_images.npy", images, allow_pickle=True)
-    np.save("data/numpy_arrays/train_texts.npy", texts, allow_pickle=True)
-    np.save("data/numpy_arrays/train_labels.npy", labels, allow_pickle=True)
+    # np.save("data/numpy_arrays/train_images.npy", images, allow_pickle=True)
+    # np.save("data/numpy_arrays/train_texts.npy", texts, allow_pickle=True)
+    # np.save("data/numpy_arrays/train_labels.npy", labels, allow_pickle=True)
 
 def load_train_data(folder_path: str):
     return np.load(os.path.join(folder_path, "train_10_images.npy"), allow_pickle=True), \
