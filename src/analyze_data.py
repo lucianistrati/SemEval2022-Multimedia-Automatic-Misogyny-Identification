@@ -59,16 +59,31 @@ def image_visualization(dataset_images, dataset_labels, label_idxs, label_column
             print(len(selected_images))
             plot_images_stack(images=selected_images[:16], label=label, classif_feature=label_columns[labels_idx])
 
+def dataframe_visualization(df):
+    label_columns = ["misogynous", "shaming", "stereotype", "objectification", "violence"]
+
+    for label_column in label_columns:
+        labels = df[label_column].to_list()
+        print(label_column, f'0: {len([label for label in labels if label == 0])}, '
+                            f'1:{len([label for label in labels if label == 1])}')
+        labels_proportion = [len([label for label in labels if label == 0]),
+                       len([label for label in labels if label == 1])]
+        print(labels_proportion)
+        np.save(arr=np.array(labels_proportion),
+                file="data/labels_proportions/labels_proportions_" + label_column + ".npy", allow_pickle=True)
+
 
 def main():
     train_images, train_texts, train_labels = load_train_data("data/train_numpy_arrays")
     test_images, test_texts, test_labels = load_test_data("data/numpy_arrays")
-
+    df = pd.read_csv("data/TRAINING/training.csv", delimiter='\t', error_bad_lines=False)
     label_columns = ["misogynous", "shaming", "stereotype", "objectification", "violence"]
     label_idxs = list(range(5))
 
     # text_visualization(train_texts, train_labels, label_idxs, label_columns)
-    image_visualization(train_images, train_labels, label_idxs, label_columns)
+    # image_visualization(train_images, train_labels, label_idxs, label_columns)
+
+    dataframe_visualization(df)
 
 if __name__ == "__main__":
     main()
