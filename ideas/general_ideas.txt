@@ -36,6 +36,10 @@ use percent of the text on the whole image as a single feature
 Transformations ideas:
 eventually hash out an image Text with black blank
 
+Kaggle notebooks:
+https://www.kaggle.com/c/petfinder-adoption-prediction/kernels
+
+
 Papers:
 https://scholar.smu.edu/cgi/viewcontent.cgi?article=1165&context=datasciencereview
 

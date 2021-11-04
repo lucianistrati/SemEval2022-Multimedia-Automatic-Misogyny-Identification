@@ -1,1 +1,8 @@
 repos
+ideas
+data
+.env
+.history
+.idea/
+.vscode/
+src/__pycache__/
