@@ -77,13 +77,17 @@ def main():
     train_images, train_texts, train_labels = load_train_data("data/train_numpy_arrays")
     test_images, test_texts, test_labels = load_test_data("data/numpy_arrays")
     df = pd.read_csv("data/TRAINING/training.csv", delimiter='\t', error_bad_lines=False)
+    # import pdb
+    # pdb.set_trace()
+    # df.to_csv("data/TRAINING/training_no_bad_lines.csv")
+
     label_columns = ["misogynous", "shaming", "stereotype", "objectification", "violence"]
     label_idxs = list(range(5))
 
     # text_visualization(train_texts, train_labels, label_idxs, label_columns)
     # image_visualization(train_images, train_labels, label_idxs, label_columns)
 
-    dataframe_visualization(df)
+    # dataframe_visualization(df)
 
 if __name__ == "__main__":
     main()

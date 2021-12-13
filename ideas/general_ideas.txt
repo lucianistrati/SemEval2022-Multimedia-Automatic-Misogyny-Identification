@@ -49,3 +49,39 @@ https://towardsdatascience.com/deep-multi-input-models-transfer-learning-for-ima
 https://medium.com/airbnb-engineering/widetext-a-multimodal-deep-learning-framework-31ce2565880c
 
 
+notebooks ideas:
+
+roberta tokenizer + roberta model 
+
+use efficient net pentru imagini
+sau orice alt backbone care e forta pentru clasificare de imagini
+
+use multiple losses pentru imagini si pentru text
+
+apply imagnenet transforms over the iamges given in the dataset
+
+use augmentation for images and text where possible
+
+use fusion layers (for all types of fusion)
+
+use AdamW optimizer
+
+use torch trainer
+
+use schedulr reduce on plateau
+
+sklearn.multioutput import Multioutputclassifier
+
+
+from sklearn.model_selection import train_test_split, learning_curve
+from sklearn.linear_model import LogisticRegression
+from sklearn.multioutput import MultiOutputClassifier
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.metrics import f1_score
+from sklearn.model_selection import ShuffleSplit
+
+RobertaModelWithHeads()
+
+
+

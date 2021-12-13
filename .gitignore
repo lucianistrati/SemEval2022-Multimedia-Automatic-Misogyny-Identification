@@ -6,3 +6,6 @@ data
 .idea/
 .vscode/
 src/__pycache__/
+notebooks
+logs
+~/

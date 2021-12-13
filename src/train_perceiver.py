@@ -163,7 +163,7 @@ class PerceiverModel(nn.Module):
         return output
 
 
-def main():
+def main(): # Killed
     mami_dataset = MamiDataset()
 
     train, test = mami_dataset.get_splits()
