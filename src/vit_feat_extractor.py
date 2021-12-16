@@ -29,7 +29,7 @@ def image_feature_extraction(image):
     inputs = feature_extractor(images=image, return_tensors="pt")
     outputs = model(**inputs)
     last_hidden_states = outputs.last_hidden_state
-    print(last_hidden_states.shape)
+    print(last_hidden_states.shape) # [1, 197, 768]
     pdb.set_trace()
 
 def main():
@@ -39,6 +39,7 @@ def main():
             img = cv2.imread(os.path.join(dirpath, filename))
             pil_img = np_to_pil(img)
             image_feature_extraction(pil_img)
+
 
 if __name__ == '__main__':
     main()

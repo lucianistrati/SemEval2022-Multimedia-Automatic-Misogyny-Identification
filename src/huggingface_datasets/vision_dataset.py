@@ -1,7 +1,8 @@
 import csv
-
+import cv2
 import datasets
-from datasets.tasks import TextClassification
+from datasets.tasks import ImageClassification
+import os
 
 
 _DESCRIPTION = """MAMI"""
@@ -21,24 +22,24 @@ class VisionDataset(datasets.GeneratorBasedBuilder):
             description=_DESCRIPTION,
             features=datasets.Features(
                 {
-                    "text": datasets.Value("string"),
-                    "misogynous_label": datasets.features.ClassLabel(
-                        names=labels),
+                    "img": datasets.Value("binary"),
+                    "label": datasets.features.ClassLabel(num_classes=2),
                 }
             ),
             homepage="http://groups.di.unipi.it/~gulli/AG_corpus_of_news_articles.html",
             citation=_CITATION,
-            task_templates=[
-                TextClassification(text_column="text", label_column="misogynous_label",
-                                   labels=labels)],
+            task_templates=[ImageClassification(label_column="label")],
         )
 
     def _split_generators(self, dl_manager):
-        train_path = "data/TRAINING/training_no_bad_lines.csv"
-        test_path = "data/TRAINING/training_no_bad_lines.csv"
+        train_path = "data/TRAINING/training_no_bad_lines_train.csv"
+        val_path = "data/TRAINING/training_no_bad_lines_val.csv"
+        test_path = "data/TRAINING/training_no_bad_lines_test.csv"
         return [
             datasets.SplitGenerator(name=datasets.Split.TRAIN,
                                     gen_kwargs={"filepath": train_path}),
+            datasets.SplitGenerator(name=datasets.Split.VALIDATION,
+                                    gen_kwargs={"filepath": val_path}),
             datasets.SplitGenerator(name=datasets.Split.TEST,
                                     gen_kwargs={"filepath": test_path}),
         ]
@@ -51,8 +52,18 @@ class VisionDataset(datasets.GeneratorBasedBuilder):
                 skipinitialspace=True
             )
             for id_, row in enumerate(csv_reader):
-                label = row[1]
-                text = row[-1]
+                try:
+                    label = int(row[4])
+                except ValueError:
+                    print("error")
+                    continue
+
+                img_path = row[3]
+                img = cv2.imread(os.path.join("data/TRAINING/" + img_path))
+                # print(row, label, img_path)
+                if img is None:
+                    continue
                 if label not in labels:
                     continue
-                yield id_, {"text": text, "misogynous_label": label}
+                # print(img.shape)
+                yield id_, {"img": img, "label": label}

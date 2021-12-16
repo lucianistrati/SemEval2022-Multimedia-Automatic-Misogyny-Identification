@@ -6,6 +6,7 @@ def main():
     saving_path = "data/TRAINING_bytes"
     for (dirpath, dirnames, filenames) in os.walk(path):
         for filename in filenames:
+
             if filename.endswith(".jpg"):
                 img = cv2.imread(os.path.join(dirpath, filename))
                 is_success, im_buf_arr = cv2.imencode(".jpg", img)
