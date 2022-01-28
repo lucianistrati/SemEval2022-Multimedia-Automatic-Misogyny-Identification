@@ -1,7 +1,7 @@
 import csv
 
 import datasets
-from datasets.tasks import TextClassification
+from datasets.tasks import TextClassification, ImageClassification
 
 
 _DESCRIPTION = """MAMI"""
@@ -22,7 +22,7 @@ class MisogynousDataset(datasets.GeneratorBasedBuilder):
             features=datasets.Features(
                 {
                     "text": datasets.Value("string"),
-                    "image": datasets.Value("binary"),
+                    # "image": datasets.Value("binary"),
                     "misogynous_label": datasets.features.ClassLabel(
                         names=labels),
                 }
@@ -31,8 +31,6 @@ class MisogynousDataset(datasets.GeneratorBasedBuilder):
             citation=_CITATION,
             task_templates=[
                 TextClassification(text_column="text", label_column="misogynous_label",
-                                   labels=labels),
-                ImageClassification(image_file_path_column="image", label_column="misogynous_label",
                                    labels=labels)],
         )
 
@@ -54,7 +52,9 @@ class MisogynousDataset(datasets.GeneratorBasedBuilder):
                 skipinitialspace=True
             )
             for id_, row in enumerate(csv_reader):
-                label = row[1]
+                if row[2] == "misogynous":
+                    continue
+                label = int(row[2])
                 text = row[-1]
                 if label not in labels:
                     continue

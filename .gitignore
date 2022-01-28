@@ -9,3 +9,5 @@ src/__pycache__/
 notebooks
 logs
 ~/
+submissions
+training_output

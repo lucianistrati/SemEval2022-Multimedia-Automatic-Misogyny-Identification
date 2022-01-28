@@ -77,7 +77,7 @@ def compute_metrics(eval_pred):
 
 def main(): #Killed
     metric_name = "accuracy"
-    model = ViTForImageClassification.from_pretrained('google/vit-base-patch16-224')
+    model = ViTForImageClassification.from_pretrained('google/vit-base-patch16-224') # try smaller model
 
     # import pdb
     # pdb.set_trace()

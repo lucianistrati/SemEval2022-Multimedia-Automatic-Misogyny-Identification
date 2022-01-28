@@ -4,6 +4,7 @@ import datasets
 from datasets.tasks import ImageClassification
 import os
 
+from datasets.tasks import TextClassification, ImageClassification
 
 _DESCRIPTION = """MAMI"""
 

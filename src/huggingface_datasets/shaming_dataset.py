@@ -4,6 +4,8 @@ import datasets
 from datasets.tasks import TextClassification
 
 
+from datasets.tasks import TextClassification, ImageClassification
+
 _DESCRIPTION = """MAMI"""
 
 _CITATION = """MAMI"""
@@ -20,7 +22,6 @@ class ShamingDataset(datasets.GeneratorBasedBuilder):
             features=datasets.Features(
                 {
                     "text": datasets.Value("string"),
-                    "image": datasets.Value("binary"),
                     "shaming_label": datasets.features.ClassLabel(
                         names=labels),
                 }
@@ -50,7 +51,9 @@ class ShamingDataset(datasets.GeneratorBasedBuilder):
                 skipinitialspace=True
             )
             for id_, row in enumerate(csv_reader):
-                label = row[3]
+                if row[3] == "shaming":
+                    continue
+                label = int(row[3])
                 text = row[-1]
                 if label not in labels:
                     continue

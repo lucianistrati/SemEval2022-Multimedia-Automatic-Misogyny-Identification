@@ -29,16 +29,33 @@ def image_feature_extraction(image):
     inputs = feature_extractor(images=image, return_tensors="pt")
     outputs = model(**inputs)
     last_hidden_states = outputs.last_hidden_state
-    print(last_hidden_states.shape) # [1, 197, 768]
-    pdb.set_trace()
+    # print(last_hidden_states.shape) # [1, 197, 768]
+    return last_hidden_states
+    # pdb.set_trace()
+
+import random
+import numpy as np
+from tqdm import tqdm
 
 def main():
     path = "data/TRAINING"
+    saving_path = "data/TRAINING/vit_features.npy"
+    vit_feats_arr = []
     for (dirpath, dirnames, filenames) in os.walk(path):
-        for filename in filenames:
+        for filename in tqdm(sorted(filenames)):
             img = cv2.imread(os.path.join(dirpath, filename))
             pil_img = np_to_pil(img)
-            image_feature_extraction(pil_img)
+            vit_feats_arr.append(image_feature_extraction(pil_img))
+            val = random.random()
+            if val <= 0.02:
+                np.save(file=saving_path,
+                        arr=np.array(vit_feats_arr),
+                        allow_pickle=True
+                        )
+
+    np.save(file=saving_path,
+            arr=np.array(vit_feats_arr),
+            allow_pickle=True)
 
 
 if __name__ == '__main__':

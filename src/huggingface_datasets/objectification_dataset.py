@@ -3,6 +3,7 @@ import csv
 import datasets
 from datasets.tasks import TextClassification
 
+from datasets.tasks import TextClassification, ImageClassification
 
 _DESCRIPTION = """MAMI"""
 
@@ -20,7 +21,6 @@ class ObjectificationDataset(datasets.GeneratorBasedBuilder):
             features=datasets.Features(
                 {
                     "text": datasets.Value("string"),
-                    "image": datasets.Value("binary"),
                     "objectification_label": datasets.features.ClassLabel(
                         names=labels),
                 }
@@ -50,7 +50,9 @@ class ObjectificationDataset(datasets.GeneratorBasedBuilder):
                 skipinitialspace=True
             )
             for id_, row in enumerate(csv_reader):
-                label = row[2]
+                if row[5] == "objectification":
+                    continue
+                label = int(row[5])
                 text = row[-1]
                 if label not in labels:
                     continue

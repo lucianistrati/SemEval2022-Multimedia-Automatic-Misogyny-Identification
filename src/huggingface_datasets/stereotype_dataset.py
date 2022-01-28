@@ -4,6 +4,7 @@ import datasets
 from datasets.tasks import TextClassification
 
 
+from datasets.tasks import TextClassification, ImageClassification
 _DESCRIPTION = """MAMI"""
 
 _CITATION = """MAMI"""
@@ -20,7 +21,6 @@ class StereotypeDataset(datasets.GeneratorBasedBuilder):
             features=datasets.Features(
                 {
                     "text": datasets.Value("string"),
-                    "image": datasets.Value("binary"),
                     "stereotype_label": datasets.features.ClassLabel(
                         names=labels),
                 }
@@ -50,7 +50,10 @@ class StereotypeDataset(datasets.GeneratorBasedBuilder):
                 skipinitialspace=True
             )
             for id_, row in enumerate(csv_reader):
-                label = row[4]
+                # print(row)
+                if row[4] == "stereotype":
+                    continue
+                label = int(row[4])
                 text = row[-1]
                 if label not in labels:
                     continue
