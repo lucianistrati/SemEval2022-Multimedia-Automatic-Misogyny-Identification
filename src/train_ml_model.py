@@ -98,7 +98,22 @@ def task_b(texts, labels, model, label_columns, submit=False, submission_texts=N
         print("task b:", mean(scores))
 
 
+def extract_features(text):
+    return None
+
+def embed_text(text, em):
+    return None
+
 def main():
+    embedding_idx = -1
+    embedding_model = ["count_vectorizer", "tfidfvectorizer", "linguistic_features", "text_embedding"][embedding_idx]
+    vectorizer = None
+    if embedding_model == "count_vectorizer":
+        vectorizer = CountVectorizer()
+    elif embedding_model == "tfidfvectorizer":
+        vectorizer = TfidfVectorizer()
+
+
     model = XGBClassifier()
     df = pd.read_csv("data/TRAINING/training_no_bad_lines.csv")
     print(len(df))
@@ -107,8 +122,9 @@ def main():
     print(df.head())
     texts = df['Text Transcription'].to_list()
 
-    cv = CountVectorizer()
-    texts = cv.fit_transform(texts)
+    if vectorizer is not None:
+        texts = vectorizer.fit_transform(texts)
+
     label_columns = ["misogynous", "shaming", "stereotype", "objectification", "violence"]
     labels = [[] for _ in range(len(label_columns))]
     for i, label_column in enumerate(label_columns):
@@ -121,8 +137,18 @@ def main():
     print(test_df.head())
     print(len(test_df))
     test_texts = test_df["Text Transcription"].to_list()
-    test_texts = cv.transform(test_texts)
-    submit = True
+
+    if vectorizer is not None:
+        test_texts = vectorizer.transform(test_texts)
+    else:
+        if embedding_model == "text_embedding":
+            test_texts = [embed_text(text) for text in test_texts]
+        elif embedding_model == "linguistic_features":
+            test_texts = [extract_features(text) for text in test_texts]
+        else:
+            raise Exception("wrong embedding model!")
+
+    submit = False
 
     task_a_labels = labels[0]
     task_a(texts, task_a_labels, model, submit=submit, submission_texts=test_texts, file_paths=images_paths)
