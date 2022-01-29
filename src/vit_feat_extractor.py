@@ -38,6 +38,9 @@ import numpy as np
 from tqdm import tqdm
 
 def main():
+    # vit feat extractor 3.6 it/s, ETA: 10 hours
+    # killed if another process is running
+
     path = "data/TRAINING"
     saving_path = "data/TRAINING/vit_features.npy"
     vit_feats_arr = []

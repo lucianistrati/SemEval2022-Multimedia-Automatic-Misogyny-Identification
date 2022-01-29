@@ -1,3 +1,5 @@
+import os.path
+
 from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
 from sklearn.preprocessing import StandardScaler, MinMaxScaler
 from sklearn.metrics import f1_score
@@ -95,18 +97,35 @@ def task_b(texts, labels, model, label_columns, submit=False, submission_texts=N
                 score = f1_score(y_test, y_pred, average="weighted", pos_label=pos_label)
                 scores.append(score)
                 print(label_columns[i], "-", pos_label, "-", score)
+        print("*" * 30)
         print("task b:", mean(scores))
+        print("task a:", mean(scores[:2]))
+        print("*" * 30)
 
 
 def extract_features(text):
     return None
 
-def embed_text(text, em):
-    return None
+from tqdm import tqdm
+
+from src.text_preprocess import embed_text
 
 def main():
     embedding_idx = -1
-    embedding_model = ["count_vectorizer", "tfidfvectorizer", "linguistic_features", "text_embedding"][embedding_idx]
+    embedding_model = ["count_vectorizer", "tfidfvectorizer", "paper_features", "text_embedding"][embedding_idx]
+    embedding_method = "bert_large"
+    """
+    sentence_transformer - 15 s/it
+    roberta - 7.5 s/it
+    roberta_large - breaks
+    roberta_distil - 50 s/it
+    albert-base-v2 - s/it 
+    bert_large - s/it
+    
+    """
+
+    print(embedding_model)
+
     vectorizer = None
     if embedding_model == "count_vectorizer":
         vectorizer = CountVectorizer()
@@ -119,6 +138,7 @@ def main():
     print(len(df))
     print(df.describe())
     # exit()
+
     print(df.head())
     texts = df['Text Transcription'].to_list()
 
@@ -134,26 +154,40 @@ def main():
     test_df = pd.read_csv("data/test/Test.csv", delimiter='\t', error_bad_lines=False)
     test_df.to_csv("data/test/Test_no_bad_lines.csv")
     images_paths = test_df['file_name'].to_list()
+
     print(test_df.head())
     print(len(test_df))
+
     test_texts = test_df["Text Transcription"].to_list()
 
     if vectorizer is not None:
         test_texts = vectorizer.transform(test_texts)
     else:
         if embedding_model == "text_embedding":
-            test_texts = [embed_text(text) for text in test_texts]
-        elif embedding_model == "linguistic_features":
-            test_texts = [extract_features(text) for text in test_texts]
+            embedded_texts = []
+            for text in tqdm(test_texts):
+                embedded_texts.append(embed_text(text, embedding_model=embedding_method))
+            test_texts = embedded_texts
+            # if os.path.exists("data/texts_" + embedding_method + ".npy"):
+            np.save(file="data/texts_" + embedding_method + ".npy",
+                    arr=np.array(test_texts),
+                    allow_pickle=True)
+            a = np.load(file="data/texts_" + embedding_method + ".npy", allow_pickle=True)
+            print(a.shape)
+            print(a[0].shape)
+            exit()
+        elif embedding_model == "paper_features":
+            test_texts = [embed_text(text, embedding_model="paper_features") for text in test_texts]
         else:
             raise Exception("wrong embedding model!")
 
     submit = False
 
-    task_a_labels = labels[0]
-    task_a(texts, task_a_labels, model, submit=submit, submission_texts=test_texts, file_paths=images_paths)
-    task_b(texts, labels, model, label_columns, submit=submit, submission_texts=test_texts, file_paths=images_paths)
+    # task_a_labels = labels[0]
+    # task_a(texts, task_a_labels, model, submit=submit, submission_texts=test_texts, file_paths=images_paths)
 
+    task_b(texts, labels, model, label_columns, submit=submit, submission_texts=test_texts, file_paths=images_paths)
+    print(embedding_model)
 
 
 

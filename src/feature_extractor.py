@@ -9,10 +9,11 @@ from nltk.corpus import wordnet as wn
 
 # import these modules
 from nltk.stem import WordNetLemmatizer
-
 lemmatizer = WordNetLemmatizer()
 
+
 def get_base_word_pct(initial_word, root=None, tokens=None):
+    lemmatizer = WordNetLemmatizer()
     tokens = word_tokenize(initial_word) if tokens == None else tokens
     ans = []
     """the higher the more complex a word it is because it requires many subwords"""
@@ -48,7 +49,7 @@ def has_suffix(initial_word, root=None, tokens=None):
 
 
 def has_both_affixes(initial_word, root=None, tokens=None):
-    tokens = word_tokenize(word) if tokens == None else tokens
+    tokens = word_tokenize(initial_word) if tokens == None else tokens
     ans = []
     for token in tokens:
         root = lemmatizer.lemmatize(token) if root is None else root

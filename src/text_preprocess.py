@@ -20,9 +20,9 @@ import torch.optim as optim
 from copy import deepcopy
 from gensim import corpora
 from gensim.models import Word2Vec
-from keras.layers import Dense
-from keras.models import Sequential
-from keras.wrappers.scikit_learn import KerasRegressor
+# from keras.layers import Dense
+# from keras.models import Sequential
+# from keras.wrappers.scikit_learn import KerasRegressor
 from matplotlib import pyplot as plt
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
@@ -44,7 +44,6 @@ from sklearn.svm import SVR
 from torch.utils.data import Dataset, DataLoader
 from torch.utils.data import random_split
 from tqdm import tqdm
-from transformers import RobertaTokenizer, RobertaModel
 from transformers import pipeline
 from typing import List
 from xgboost import XGBRegressor
@@ -52,13 +51,13 @@ from xgboost import XGBRegressor
 from src.feature_extractor import *
 
 PAD_TOKEN = "__PAD__"
-word2vec_model = Word2Vec.load("src/embeddings_train/word2vec.model")
+# word2vec_model = Word2Vec.load("src/embeddings_train/word2vec.model")
 
 numpy_arrays_path = "data/numpy_data"
 # word2vec_model = Word2Vec.load("src/embeddings_train/fasttext.model")
 
 import copy
-from src.embeddings_train.train_word2vec import document_preprocess
+# from src.embeddings_train.train_word2vec import document_preprocess
 
 
 # def document_preprocess(document):
@@ -68,45 +67,60 @@ from src.embeddings_train.train_word2vec import document_preprocess
 # word2vec_model = Word2Vec.load("src/embeddings_train/abcnews_word2vec.model.syn1neg.npy")
 # word2vec_model = Word2Vec.load("src/embeddings_train/abcnews_word2vec.model.wv.vectors.npy")
 
+from tensorflow.python.ops.numpy_ops import np_config
+np_config.enable_numpy_behavior()
 
-def embed_text(text, embedding_model: str = "word2vec_trained", phrase="", start_offset="", end_offset=""):
+def embed_text(text, embedding_model: str = "sentence_transformer", dl_framework="tf"):
     """This function embedds the text given using an embedding model, it might also use the phrase, start_offset or the end_offset for certain embeddings"""
     # print(embedding_model)
     if embedding_model == "roberta":
-        encoded_input = roberta_tokenizer(text, return_tensors='pt')
+        from transformers import RobertaTokenizer, RobertaModel
+        roberta_tokenizer = RobertaTokenizer.from_pretrained('roberta-base')
+        roberta_model = RobertaModel.from_pretrained('roberta-base')
+        encoded_input = roberta_tokenizer(text, return_tensors=dl_framework)
         output = roberta_model(**encoded_input)
         return torch.reshape(output.pooler_output, shape=(output.pooler_output.shape[1],)).detach().numpy()
     elif embedding_model == "sentence_transformer":
+        from sentence_transformers import SentenceTransformer
+        sent_transf_model = SentenceTransformer('sentence-transformers/all-mpnet-base-v2')
         embedding = sent_transf_model.encode(text)
         return embedding
-    elif embedding_model == "sentence_transformer_multi_qa":
-        embedding = sent_transf_model_multi_qa.encode(text)
-        return embedding
     elif embedding_model == "roberta_large":
-        encoded_input = roberta_large_tokenizer(text, return_tensors='pt')
+        from transformers import RobertaTokenizer, RobertaModel
+        roberta_large_tokenizer = RobertaTokenizer.from_pretrained('roberta-large')
+        roberta_large_model = RobertaModel.from_pretrained('roberta-large')
+        encoded_input = roberta_large_tokenizer(text, return_tensors=dl_framework)
         output = roberta_large_model(**encoded_input)
         return torch.reshape(output.pooler_output, shape=(output.pooler_output.shape[1],)).detach().numpy()
     elif embedding_model == "bert_large":
-        encoded_input = bert_large_tokenizer(text, return_tensors='tf')
+        from transformers import BertTokenizer, BertModel
+        bert_large_tokenizer = BertTokenizer.from_pretrained('bert-large-uncased')
+        bert_large_model = BertModel.from_pretrained("bert-large-uncased")
+        encoded_input = bert_large_tokenizer(text, return_tensors=dl_framework)
         output = bert_large_model(**encoded_input)
         return np.reshape(np.array(output.pooler_output), newshape=(output.pooler_output.shape[1],))
     elif embedding_model == "albert-base-v2":
-        encoded_input = albert_tokenizer(text, return_tensors='tf')
+        from transformers import AlbertTokenizer, AlbertModel
+        albert_tokenizer = AlbertTokenizer.from_pretrained('albert-base-v2')
+        albert_model = AlbertModel.from_pretrained("albert-base-v2")
+        encoded_input = albert_tokenizer(text, return_tensors=dl_framework)
         output = albert_model(**encoded_input)
         return np.reshape(np.array(output.pooler_output), newshape=(output.pooler_output.shape[1],))
     elif embedding_model == "roberta_distil":
+        from sentence_transformers import SentenceTransformer
+        sent_transf_model_distil_roberta = SentenceTransformer("sentence-transformers/paraphrase-distilroberta-base-v2")
         embedding = sent_transf_model_distil_roberta.encode(text)
         return embedding
     elif embedding_model == "all_minimlm_l12":
+        from sentence_transformers import SentenceTransformer
+        all_minimlm_l12_model = SentenceTransformer("sentence-transformers/msmarco-MiniLM-L12-cos-v5")
         embedding = all_minimlm_l12_model.encode(text)
         return embedding
     elif embedding_model == "all_minimlm_l6":
+        from sentence_transformers import SentenceTransformer
+        all_minimlm_l6_model = SentenceTransformer("sentence-transformers/paraphrase-MiniLM-L6-v2")
         embedding = all_minimlm_l6_model.encode(text)
         return embedding
-    elif embedding_model.startswith("tfidfvectorizer"):
-        return text
-    elif embedding_model.startswith("gensim_doc2bow"):
-        return text.split()
     elif embedding_model == "word2vec_trained":
         try:
             vector = word2vec_model.wv[document_preprocess(text)]
@@ -117,7 +131,7 @@ def embed_text(text, embedding_model: str = "word2vec_trained", phrase="", start
             vector = np.random.rand(1, 300)
         return vector
     elif embedding_model == "paper_features":
-        return get_paper_features(phrase, text, start_offset, end_offset), None
+        return get_paper_features(phrase, text, start_offset, end_offset)
     elif embedding_model == "word2vec_trained_special":
         try:
             vector = word2vec_model.wv[text]
