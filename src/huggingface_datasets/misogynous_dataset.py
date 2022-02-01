@@ -1,8 +1,7 @@
 import csv
 
 import datasets
-from datasets.tasks import TextClassification, ImageClassification
-
+from datasets.tasks import TextClassification
 
 _DESCRIPTION = """MAMI"""
 
@@ -35,8 +34,8 @@ class MisogynousDataset(datasets.GeneratorBasedBuilder):
         )
 
     def _split_generators(self, dl_manager):
-        train_path = "data/TRAINING/training_no_bad_lines.csv"
-        test_path = "data/TRAINING/training_no_bad_lines.csv"
+        train_path = "data/TRAINING_csvs/training_no_bad_lines_train_train.csv"
+        test_path = "data/TRAINING_csvs/training_no_bad_lines_train_val.csv"
         return [
             datasets.SplitGenerator(name=datasets.Split.TRAIN,
                                     gen_kwargs={"filepath": train_path}),

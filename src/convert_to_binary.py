@@ -1,5 +1,7 @@
-import cv2
 import os
+
+import cv2
+
 
 def main():
     path = "data/TRAINING"
@@ -18,5 +20,6 @@ def main():
                 f.write(byte_img)
                 f.close()
 
-if __name__=='__main__':
+
+if __name__ == '__main__':
     main()

@@ -1,52 +1,18 @@
-import csv
-import linalg
-import matplotlib.pyplot as plt
-import nltk
-
 import textstat
 
 textstat.set_lang("en")
 
-
 import numpy as np
-import os
-import pdb
-import pdb
 import torch
-import torch
-import torch.nn as nn
-import torch.nn.functional as F
-import torch.optim as optim
-from copy import deepcopy
-from gensim import corpora
-from gensim.models import Word2Vec
 # from keras.layers import Dense
 # from keras.models import Sequential
 # from keras.wrappers.scikit_learn import KerasRegressor
-from matplotlib import pyplot as plt
 from nltk.corpus import stopwords
-from nltk.stem import WordNetLemmatizer
-from nltk.tokenize import word_tokenize
-from pandas import read_csv
 from sklearn.decomposition import PCA
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
-from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.manifold import TSNE
-from sklearn.metrics import mean_absolute_error
-from sklearn.model_selection import KFold
-from sklearn.model_selection import cross_val_score
-from sklearn.model_selection import train_test_split
-from sklearn.pipeline import Pipeline
-from sklearn.preprocessing import StandardScaler
-from sklearn.preprocessing import StandardScaler, MinMaxScaler
-from sklearn.svm import SVR
-from torch.utils.data import Dataset, DataLoader
-from torch.utils.data import random_split
-from tqdm import tqdm
-from transformers import pipeline
 from typing import List
-from xgboost import XGBRegressor
 
 from src.feature_extractor import *
 
@@ -56,7 +22,6 @@ PAD_TOKEN = "__PAD__"
 numpy_arrays_path = "data/numpy_data"
 # word2vec_model = Word2Vec.load("src/embeddings_train/fasttext.model")
 
-import copy
 # from src.embeddings_train.train_word2vec import document_preprocess
 
 
@@ -68,7 +33,9 @@ import copy
 # word2vec_model = Word2Vec.load("src/embeddings_train/abcnews_word2vec.model.wv.vectors.npy")
 
 from tensorflow.python.ops.numpy_ops import np_config
+
 np_config.enable_numpy_behavior()
+
 
 def embed_text(text, embedding_model: str = "sentence_transformer", dl_framework="tf"):
     """This function embedds the text given using an embedding model, it might also use the phrase, start_offset or the end_offset for certain embeddings"""
@@ -141,205 +108,6 @@ def embed_text(text, embedding_model: str = "sentence_transformer", dl_framework
         except KeyError:
             vector = np.random.rand(1, 300)
         return vector
-
-
-def embed_data(embedding_feature: str, embedding_model: str):
-    """This function embedds the data based on a chosen feature to be emebedded/chosen set of rules to be applied over the feature with a certain alias
-    and then an embedding model might be used to pursue the feature extraction"""
-    train_path = "data/train_full.txt"
-    test_path = "data/test.txt"
-    if embedding_feature == "phrase":
-        column_idx = 1
-    elif embedding_feature == "target_word":
-        column_idx = 4
-    # else:
-    #     raise Exception("Wrong embedding feature!")
-
-    train_columns = ["id", "phrase", "start_offset", "end_offset", "target_word",
-                     "native_annotators", "non_native_annotators", "difficult_native_annotators",
-                     "difficult_non_native_annotators", "label"]
-    print("Embedding feature:", embedding_feature)
-    test_columns = ["id", "phrase", "start_offset", "end_offset", "target_word",
-                    "native_annotators", "non_native_annotators"]
-
-    X_train, y_train, X_test = [], [], []
-
-    datapoints_limit = -1
-
-    X_train_str = []
-    X_test_str = []
-    with open(train_path) as f:
-        reader = csv.reader(f, delimiter="\t")
-        data = list(reader)
-        for i, row in tqdm(enumerate(data)):
-            if datapoints_limit != -1:
-                if i > datapoints_limit:
-                    break
-            if embedding_feature == "phrase_with_no_target_word":
-                start_offset = int(row[2])
-                end_offset = int(row[3])
-                # print(row[1])
-                # import pdb
-                # pdb.set_trace()
-                X_train.append(embed_text(row[1][:start_offset] + row[1][end_offset:], embedding_model=embedding_model))
-            elif embedding_feature in ["phrase", "target_word"]:
-                phrase = row[1]
-                start_offset = int(row[2])
-                end_offset = int(row[3])
-                outputs = embed_text(row[column_idx], embedding_model=embedding_model, phrase=phrase, start_offset=start_offset, end_offset=end_offset)
-                # vecs = []
-                # res_types = []
-                # final_vecs = []
-                # for word in word_tokenize(row[column_idx]):
-                #     res_type, vec = get_embedding_word(word)
-                #     res_types.append(res_type)
-                #     vecs.append(vec)
-                # if "good" in res_types:
-                #     for res_type in res_types:
-                #         if res_type == "good":
-                #             final_vecs.append(vec)
-                # if len(final_vecs):
-                #     vecs = final_vecs
-                # vecs = np.mean(vecs, axis=0)
-                # assert vecs.shape == (1,10)
-                if embedding_model == "paper_features":
-                    # for elem in vecs[0]:
-                    #     outputs[0].append(elem)
-                    # print(np.array(outputs[0]).shape)
-                    # print(np.array(outputs[0]).astype(float))
-                    X_train.append(np.array(outputs[0]))
-                    # print(np.array(X_train).shape)
-                    if outputs[1] is not None:
-                        # print(outputs[1], type(outputs[1]))
-                        X_train_str.append(outputs[1])
-                else:
-                    X_train.append(outputs)
-            elif embedding_feature == "predicted_target_word":
-                phrase = row[1]
-                start_offset = int(row[2])
-                end_offset = int(row[3])
-                masked_phrase = mask_expression(phrase, start_offset, end_offset)
-                masked_prediction = predict_masked_tokens(masked_phrase)
-                X_train.append(embed_text(masked_prediction, embedding_model=embedding_model))
-            elif embedding_feature == "phrase_special_tokenized":
-                start_offset = int(row[2])
-                end_offset = int(row[3])
-                X_train.append(embed_text(row[1][:start_offset].lower().split() + [row[4].lower()] + row[1][end_offset:].lower().split(), embedding_model=embedding_model))
-            y_train.append(float(row[8]) / float(row[6]))
-
-    X_train, y_train = np.array(X_train), np.array(y_train)
-
-    np.save(file=os.path.join(numpy_arrays_path, "y_train_" + embedding_feature + "_" + embedding_model + "_non_native.npy"), arr=y_train)
-
-    with open(test_path) as f:
-        reader = csv.reader(f, delimiter="\t")
-        data = list(reader)
-        for i, row in tqdm(enumerate(data)):
-            if datapoints_limit != -1:
-                if i > datapoints_limit:
-                    break
-            if embedding_feature == "phrase_with_no_target_word":
-                start_offset = int(row[2])
-                end_offset = int(row[3])
-                X_test.append(embed_text(row[1][:start_offset] + row[1][end_offset:], embedding_model=embedding_model))
-            elif embedding_feature in ["phrase", "target_word"]:
-                phrase = row[1]
-                start_offset = int(row[2])
-                end_offset = int(row[3])
-                outputs = embed_text(row[column_idx], embedding_model=embedding_model, phrase=phrase, start_offset=start_offset, end_offset=end_offset)
-                # vecs = []
-                # res_types = []
-                # final_vecs = []
-                # for word in word_tokenize(row[column_idx]):
-                #     res_type, vec = get_embedding_word(word)
-                #     res_types.append(res_type)
-                #     vecs.append(vec)
-                # if "good" in res_types:
-                #     for res_type in res_types:
-                #         if res_type == "good":
-                #             final_vecs.append(vec)
-                # if len(final_vecs):
-                #     vecs = final_vecs
-                # vecs = np.mean(vecs, axis=0)
-                # assert vecs.shape == (1,10)
-                if embedding_model == "paper_features":
-                    # for elem in vecs[0]:
-                    #     outputs[0].append(elem)
-                    X_test.append(np.array(outputs[0], dtype=np.float))
-                    if outputs[1] is not None:
-                        X_test_str.append(outputs[1])
-                else:
-                    X_test.append(outputs)
-            elif embedding_feature == "predicted_target_word":
-                phrase = row[1]
-                start_offset = int(row[2])
-                end_offset = int(row[3])
-                masked_phrase = mask_expression(phrase, start_offset, end_offset)
-                masked_prediction = predict_masked_tokens(masked_phrase)
-                # print(masked_prediction)
-                X_test.append(embed_text(masked_prediction, embedding_model=embedding_model))
-            elif embedding_feature == "phrase_special_tokenized":
-                # print(row[4].lower())
-                X_test.append(embed_text(row[1][:start_offset].lower().split() + [row[4].lower()] + row[1][end_offset:].lower().split(), embedding_model=embedding_model))
-
-    X_test = np.array(X_test)
-
-    # corpus = [x for x in X_train] + [x for x in X_test]
-    # corpus = list(set(corpus))
-    # print(len(corpus))
-    # print(corpus[0])
-    # print(corpus[-1])
-    # np.save(file="data/wce_dataset.npy", arr=np.array(corpus), allow_pickle=True)
-    # exit(0)
-
-    print(X_train.shape, X_test.shape, "PRE CONCAT WITH STR FEATURES")
-    if len(X_test_str) and len(X_train_str):
-        cv = TfidfVectorizer(analyzer='char')
-        X_train_str = cv.fit_transform(X_train_str).toarray()
-        X_test_str = cv.transform(X_test_str).toarray()
-
-        print(X_train_str.shape, X_test_str.shape)
-
-        X_train_str = X_train_str.astype(float)
-        X_test_str = X_test_str.astype(float)
-
-        X_train = X_train.astype(float)
-        X_test = X_test.astype(float)
-
-        print(X_train_str.dtype)
-        print(X_test_str.dtype)
-
-        print(X_train.dtype)
-        print(X_test.dtype)
-
-        X_train = np.hstack((X_train, X_train_str))
-        X_test = np.hstack((X_test, X_test_str))
-
-    print(X_train.shape, X_test.shape, "POST CONCAT WITH STR FEATURES")
-
-    tfidfvectorizer = TfidfVectorizer(analyzer="char_wb", ngram_range=(1, 4))
-
-    if embedding_model.startswith("tfidfvectorizer"):
-        X_train = tfidfvectorizer.fit_transform(X_train).toarray()
-        X_test = tfidfvectorizer.transform(X_test).toarray()
-    elif embedding_model == "gensim_doc2bow":
-        corpus = [x for x in X_train] + [x for x in X_test]
-        import pdb
-        dict_d = corpora.Dictionary(corpus)
-
-        X_train = [dict_d.doc2bow(x) for x in X_train]  # one list of tuples of two integers
-        X_train = np.array([np.array(x) for x in X_train])
-        X_train = np.array([np.linalg.norm(x) for x in X_train])  # one float per sentence/word
-
-        X_test = [np.array(dict_d.doc2bow(x)) for x in X_test]  # one list of tuples of two integers
-        X_test = np.array([np.array(x) for x in X_test])
-        X_test = np.array([np.linalg.norm(x) for x in X_test])  # one float per sentence/word
-
-    np.save(file=os.path.join(numpy_arrays_path, "X_train_" + embedding_feature + "_" + embedding_model + ".npy"), arr=X_train)
-    np.save(file=os.path.join(numpy_arrays_path, "y_train_" + embedding_feature + "_" + embedding_model + ".npy"), arr=y_train)
-    np.save(file=os.path.join(numpy_arrays_path, "X_test_" + embedding_feature + "_" + embedding_model + ".npy"), arr=X_test)
-
-    return X_train, y_train, X_test
 
 
 from nltk.corpus import wordnet
@@ -428,18 +196,16 @@ def get_context_tokens(phrase, start_offset, end_offset, context_size=1):  # try
     return None
 
 
-def embed_multiple_models(embedding_models: List[str], embedding_features: List[str], strategy: str = "averaging"):
+def embed_multiple_models(texts, submission_texts, labels, embedding_models: List[str], embedding_features: List[str], strategy: str = "averaging"):
     X_train_list = []
     y_train_list = []
     X_test_list = []
-    for (embedding_model, embedding_feature) in zip(embedding_models, embedding_features):
-        X_train, y_train, X_test = embed_data(embedding_feature=embedding_feature, embedding_model=embedding_model)
+    for embedding_model in zip(embedding_models):
+        X_train = [embed_text(text=text, embedding_model=embedding_model) for text in texts]
+        X_test = [embed_text(text=text, embedding_model=embedding_model) for text in submission_texts]
         X_train_list.append(X_train)
-        y_train_list.append(y_train)
+        y_train_list.append(labels)
         X_test_list.append(X_test)
-
-    print([x.shape for x in X_train_list])
-    # pdb.set_trace()
 
     if strategy == "averaging":
         X_train_list = np.array(X_train_list)
@@ -573,7 +339,7 @@ def get_paper_features(phrase, target, start_offset, end_offset):
     """
 
     # num_features += [min_cos_sim, max_cos_sim, mean_cos_sim, sum_cos_sim]
-    
+
     return num_features
 
 
@@ -589,5 +355,3 @@ if __name__ == '__main__':
         for lemma in synset.lemmas():
             print(lemma.name())
     # print(get_context_tokens(phrase, start_offset, end_offset))
-
-

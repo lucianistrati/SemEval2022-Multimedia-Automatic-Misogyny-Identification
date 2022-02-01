@@ -1,10 +1,10 @@
-from transformers import ViTFeatureExtractor, ViTModel
-from PIL import Image
-import requests
-import torch
-import pdb
-import cv2
 import os
+
+import cv2
+import torch
+from PIL import Image
+from transformers import ViTFeatureExtractor, ViTModel
+
 
 # url = 'http://images.cocodataset.org/val2017/000000039769.jpg'
 # image = Image.open(requests.get(url, stream=True).raw)
@@ -14,14 +14,16 @@ import os
 def np_to_pil(img):
     return Image.fromarray(img)
 
+
 class ImageClassificationCollator:
     def __init__(self, feature_extractor):
-      self.feature_extractor = feature_extractor
+        self.feature_extractor = feature_extractor
 
     def __call__(self, batch):
         encodings = self.feature_extractor([x[0] for x in batch], return_tensors='pt')
         encodings['labels'] = torch.tensor([x[1] for x in batch], dtype=torch.long)
         return encodings
+
 
 def image_feature_extraction(image):
     feature_extractor = ViTFeatureExtractor.from_pretrained('google/vit-base-patch16-224-in21k')
@@ -33,9 +35,11 @@ def image_feature_extraction(image):
     return last_hidden_states
     # pdb.set_trace()
 
+
 import random
 import numpy as np
 from tqdm import tqdm
+
 
 def main():
     # vit feat extractor 3.6 it/s, ETA: 10 hours
@@ -51,10 +55,10 @@ def main():
             vit_feats_arr.append(image_feature_extraction(pil_img))
             val = random.random()
             if val <= 0.02:
-                np.save(file=saving_path,
-                        arr=np.array(vit_feats_arr),
-                        allow_pickle=True
-                        )
+                np.savoe(file=saving_path,
+                         arr=np.array(vit_feats_arr),
+                         allow_pickle=True
+                         )
 
     np.save(file=saving_path,
             arr=np.array(vit_feats_arr),

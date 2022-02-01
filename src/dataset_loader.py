@@ -1,17 +1,23 @@
-import pandas as pd
-import numpy as np
 import random
+
+import numpy as np
+import pandas as pd
+
+
 def document_preprocess(document):
-	return document.lower().split()
+    return document.lower().split()
+
 
 def load_wce_dataset():
     arr = np.load(file="data/wce_dataset.npy", allow_pickle=True)
     return [a for a in arr]
 
+
 def load_abcnews_dataset():
     arr = np.load(file="data/wce_dataset.npy", allow_pickle=True)
     df = pd.read_csv("data/abcnews-date-text.csv")
     return df['headline_text'].to_list() + [a for a in arr]
+
 
 def main():
     texts = load_wce_dataset()
@@ -44,5 +50,5 @@ def main():
         f.write("\n".join(test))
 
 
-if __name__=='__main__':
+if __name__ == '__main__':
     main()

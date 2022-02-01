@@ -1,13 +1,13 @@
-import matplotlib.pyplot as plt
-from PIL import Image
-from wordcloud import WordCloud, STOPWORDS, ImageColorGenerator
-from process_data import load_train_data, load_test_data
-import numpy as np
-import pandas as pd
+import random
 from typing import List
 
-import random
 import cv2
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+from wordcloud import WordCloud, STOPWORDS
+
+from process_data import load_train_data, load_test_data
 
 
 def plot_wordcloud(text: str, label: int, classif_feature: str):
@@ -20,6 +20,7 @@ def plot_wordcloud(text: str, label: int, classif_feature: str):
     plt.title(title)
     plt.savefig("data/data_analysis/text/wordclouds/" + title + ".png")
     plt.show()
+
 
 def text_visualization(dataset_texts, dataset_labels, label_idxs, label_columns):
     for labels_idx in label_idxs:
@@ -48,6 +49,7 @@ def plot_images_stack(images: List, label: int, classif_feature: str):
     plt.title(title)
     # plt.show()
 
+
 def image_visualization(dataset_images, dataset_labels, label_idxs, label_columns):
     for labels_idx in label_idxs:
         for label in [0, 1]:
@@ -59,6 +61,7 @@ def image_visualization(dataset_images, dataset_labels, label_idxs, label_column
             print(len(selected_images))
             plot_images_stack(images=selected_images[:16], label=label, classif_feature=label_columns[labels_idx])
 
+
 def dataframe_visualization(df):
     label_columns = ["misogynous", "shaming", "stereotype", "objectification", "violence"]
 
@@ -67,7 +70,7 @@ def dataframe_visualization(df):
         print(label_column, f'0: {len([label for label in labels if label == 0])}, '
                             f'1:{len([label for label in labels if label == 1])}')
         labels_proportion = [len([label for label in labels if label == 0]),
-                       len([label for label in labels if label == 1])]
+                             len([label for label in labels if label == 1])]
         print(labels_proportion)
         np.save(arr=np.array(labels_proportion),
                 file="data/labels_proportions/labels_proportions_" + label_column + ".npy", allow_pickle=True)
@@ -76,7 +79,7 @@ def dataframe_visualization(df):
 def main():
     train_images, train_texts, train_labels = load_train_data("data/train_numpy_arrays")
     test_images, test_texts, test_labels = load_test_data("data/numpy_arrays")
-    df = pd.read_csv("data/TRAINING/training.csv", delimiter='\t', error_bad_lines=False)
+    df = pd.read_csv("data/TRAINING_csvs/training.csv", delimiter='\t', error_bad_lines=False)
     # import pdb
     # pdb.set_trace()
     # df.to_csv("data/TRAINING/training_no_bad_lines.csv")
@@ -88,6 +91,7 @@ def main():
     # image_visualization(train_images, train_labels, label_idxs, label_columns)
 
     # dataframe_visualization(df)
+
 
 if __name__ == "__main__":
     main()

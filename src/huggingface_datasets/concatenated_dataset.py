@@ -3,7 +3,6 @@ import csv
 import datasets
 from datasets.tasks import TextClassification
 
-
 _DESCRIPTION = """MAMI"""
 
 _CITATION = """MAMI"""

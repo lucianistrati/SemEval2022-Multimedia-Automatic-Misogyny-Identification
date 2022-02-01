@@ -13,41 +13,29 @@ from transformers import TrainingArguments, AdapterTrainer, EvalPrediction
 from transformers import AutoModelForSequenceClassification, AdapterType
 
 
-def train_adapter_1():
-    model = AutoModelForSequenceClassification.from_pretrained("roberta-base")
-    model.add_adapter("sst-2", AdapterType.text_task, config="pfeiffer") # TypeError: add_adapter() got multiple values for argument 'config'
-    model.train_adapters(["sst-2"])  # Train model ...
-
-    model.save_adapter("adapters/text-task/sst-2/", "sst")
-    # Push link to zip file to AdapterHub ...
-
-
-def train_adapter_2():
-    model = AutoModelForSequenceClassification.from_pretrained("roberta-base")
-    model.load_adapter("sst", config="pfeiffer")
-
-from datasets import concatenate_datasets
-import pdb
-# https://github.com/Adapter-Hub/adapter-transformers/blob/master/notebooks/01_Adapter_Training.ipynb
-def train_adapter_3():
+def train_adapter():
     # dataset preprocessing
-    dataset = load_dataset("rotten_tomatoes")
-
-    # pdb.set_trace()
     misogynous_dataset = load_dataset("src/huggingface_datasets/misogynous_dataset.py")
     shaming_dataset = load_dataset("src/huggingface_datasets/shaming_dataset.py")
     stereotype_dataset = load_dataset("src/huggingface_datasets/stereotype_dataset.py")
     objectification_dataset = load_dataset("src/huggingface_datasets/objectification_dataset.py")
     violence_dataset = load_dataset("src/huggingface_datasets/violence_dataset.py")
 
-    datasets = [misogynous_dataset, shaming_dataset, stereotype_dataset, objectification_dataset, violence_dataset]
-    datasets_names = ["misogynous_dataset", "shaming_dataset", "stereotype_dataset", "objectification_dataset", "violence_dataset"]
-    labels_names = ["misogynous_label", "shaming_label", "stereotype_label", "objectification_label", "violence_label"]
+    datasets = [violence_dataset, misogynous_dataset]
+    datasets_names = [ "violence_dataset", "misogynous_dataset"]
+    labels_names = ["violence_label", "misogynous_label"]
+
+    # https://adapterhub.ml/
+
     # common_dataset = concatenate_datasets(dsets=[misogynous_dataset, shaming_dataset, stereotype_dataset, objectification_dataset, violence_dataset])
     num_epochs = 1
     for (dataset, dataset_name, label_name) in zip(datasets, datasets_names, labels_names):
+        print("*" * 100)
+        print("epochs: ", num_epochs)
+        print(dataset_name)
         print(dataset.num_rows)
         print(dataset['train'][0])
+        print("*" * 100)
 
         tokenizer = RobertaTokenizer.from_pretrained("roberta-base")
 
@@ -76,6 +64,8 @@ def train_adapter_3():
         # Add a new adapter
         model.add_adapter(dataset_name)
         # Add a matching classification head
+        # model.save_adapter("./final_adapter/" + dataset_name, dataset_name)
+        # exit()
         model.add_classification_head(
             dataset_name,
             num_labels=2,
@@ -87,8 +77,8 @@ def train_adapter_3():
         training_args = TrainingArguments(
             learning_rate=1e-4,
             num_train_epochs=num_epochs,
-            per_device_train_batch_size=32,
-            per_device_eval_batch_size=32,
+            per_device_train_batch_size=16,
+            per_device_eval_batch_size=16,
             logging_steps=200,
             output_dir="./training_output/" + dataset_name,
             overwrite_output_dir=True,
@@ -112,16 +102,21 @@ def train_adapter_3():
         trainer.train()
         trainer.evaluate()
 
-        classifier = TextClassificationPipeline(model=model, tokenizer=tokenizer, device=training_args.device.index)
-        classifier("This is awesome!")
+        # classifier = TextClassificationPipeline(model=model, tokenizer=tokenizer)
+        # classifier("This is awesome!")
 
-        model.save_adapter("./final_adapter", dataset_name)
+        model.save_adapter("./final_adapter/" + dataset_name, dataset_name)
+
+        print("*" * 100)
+        print("epochs: ", num_epochs)
+        print(dataset_name)
+        print(dataset.num_rows)
+        print(dataset['train'][0])
+        print("*" * 100)
 
 
 def main():
-    # train_adapter_1() # TypeError: add_adapter() got multiple values for argument 'config' L18
-    # train_adapter_2() # OSError: No adapter with name 'sst' was found in the adapter index. L27
-    train_adapter_3()
+    train_adapter()
 
 if __name__ == '__main__':
     main()

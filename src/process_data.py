@@ -1,10 +1,15 @@
-from typing import List
 import os
-import sys
 import cv2
 from tqdm import tqdm
 import pandas as pd
 import numpy as np
+import os
+
+import cv2
+import numpy as np
+import pandas as pd
+from tqdm import tqdm
+
 
 def parse_data_folder(folder_path: str, data_set: str, first_character: str):
     images_dict = dict()
@@ -14,7 +19,7 @@ def parse_data_folder(folder_path: str, data_set: str, first_character: str):
     preview = False
     for (dirpath, _, filenames) in os.walk(folder_path):
         for filename in tqdm(filenames):
-            if filename.endswith('.jpg') and filename[1]!='.' and int(filename[0:2]) != first_character:
+            if filename.endswith('.jpg') and filename[1] != '.' and int(filename[0:2]) != first_character:
                 continue
             if filename.endswith('.jpg'):
                 image_path = os.path.join(dirpath, filename)
@@ -27,7 +32,7 @@ def parse_data_folder(folder_path: str, data_set: str, first_character: str):
                     cv2.destroyAllWindows()
             elif filename.endswith('.csv'):
                 df = pd.read_csv(os.path.join(folder_path, filename), delimiter='\t', error_bad_lines=False)
-    
+
     print(df.head())
     print(df.columns)
     print(len(df))
@@ -35,7 +40,7 @@ def parse_data_folder(folder_path: str, data_set: str, first_character: str):
     label_columns = ["misogynous", "shaming", "stereotype", "objectification", "violence"]
 
     for i in range(len(df)):
-        if df.at[i, "file_name"][1]!='.' and int(df.at[i, 'file_name'][:2]) != first_character:
+        if df.at[i, "file_name"][1] != '.' and int(df.at[i, 'file_name'][:2]) != first_character:
             continue
         row_labels = []
         for column in list(df.columns):
@@ -56,6 +61,7 @@ def parse_data_folder(folder_path: str, data_set: str, first_character: str):
     # np.save(folder_path + "/" + data_set + "_" + str(first_character) + "_images.npy", images, allow_pickle=True)
     # np.save(folder_path + "/" + data_set + "_" + str(first_character) + "_texts.npy", texts, allow_pickle=True)
     # np.save(folder_path + "/" + data_set + "_" + str(first_character) + "_labels.npy", labels, allow_pickle=True)
+
 
 def merge_train_npy_arrays(folder_path: str) -> None:
     images = []
@@ -84,16 +90,17 @@ def merge_train_npy_arrays(folder_path: str) -> None:
     # np.save("data/numpy_arrays/train_texts.npy", texts, allow_pickle=True)
     # np.save("data/numpy_arrays/train_labels.npy", labels, allow_pickle=True)
 
+
 def load_train_data(folder_path: str):
     return np.load(os.path.join(folder_path, "train_10_images.npy"), allow_pickle=True), \
-            np.load(os.path.join(folder_path, "train_10_texts.npy"), allow_pickle=True), \
-            np.load(os.path.join(folder_path, "train_10_labels.npy"), allow_pickle=True)
+           np.load(os.path.join(folder_path, "train_10_texts.npy"), allow_pickle=True), \
+           np.load(os.path.join(folder_path, "train_10_labels.npy"), allow_pickle=True)
+
 
 def load_test_data(folder_path: str):
     return np.load(os.path.join(folder_path, "test_images.npy"), allow_pickle=True), \
            np.load(os.path.join(folder_path, "test_texts.npy"), allow_pickle=True), \
            np.load(os.path.join(folder_path, "test_labels.npy"), allow_pickle=True)
-
 
 
 def main():
@@ -106,8 +113,6 @@ def main():
     # parse_data_folder(test_path, "test")
     train_images, train_texts, train_labels = load_train_data("data/train_numpy_arrays")
     test_images, test_texts, test_labels = load_test_data("data/numpy_arrays")
-
-
 
 
 if __name__ == '__main__':

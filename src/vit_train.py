@@ -1,20 +1,10 @@
+import numpy as np
 from datasets import load_dataset
-from transformers.modeling_outputs import SequenceClassifierOutput
-
-
+from datasets import load_metric
 from transformers import Trainer
 from transformers import TrainingArguments
-import transformers
-
-from datasets import load_metric
-
-
-
-from transformers import ViTForImageClassification
-
-import numpy as np
-
 from transformers import ViTFeatureExtractor
+from transformers.modeling_outputs import SequenceClassifierOutput
 
 
 def preprocess_images(examples):
@@ -27,37 +17,34 @@ def preprocess_images(examples):
 
     return examples
 
+
 from datasets import Features, ClassLabel, Array3D
 
-
 from transformers import default_data_collator
-
 
 from transformers import ViTForImageClassification
 
 from transformers import ViTModel
 import torch.nn as nn
 
+
 class ViTForImageClassification2(nn.Module):
 
     def __init__(self, num_labels=10):
-
         super(ViTForImageClassification2, self).__init__()
         self.vit = ViTModel.from_pretrained('google/vit-base-patch16-224-in21k')
         self.classifier = nn.Linear(self.vit.config.hidden_size, num_labels)
         self.num_labels = num_labels
 
     def forward(self, pixel_values, labels):
-
         outputs = self.vit(pixel_values=pixel_values)
         logits = self.classifier(outputs)
         loss = None
 
         if labels is not None:
+            loss_fct = nn.CrossEntropyLoss()
 
-          loss_fct = nn.CrossEntropyLoss()
-
-          loss = loss_fct(logits.view(-1, self.num_labels), labels.view(-1))
+            loss = loss_fct(logits.view(-1, self.num_labels), labels.view(-1))
 
         return SequenceClassifierOutput(
             loss=loss,
@@ -75,9 +62,9 @@ def compute_metrics(eval_pred):
     return metric.compute(predictions=predictions, references=labels)
 
 
-def main(): #Killed
+def main():  # Killed
     metric_name = "accuracy"
-    model = ViTForImageClassification.from_pretrained('google/vit-base-patch16-224') # try smaller model
+    model = ViTForImageClassification.from_pretrained('google/vit-base-patch16-224')  # try smaller model
 
     # import pdb
     # pdb.set_trace()
@@ -128,7 +115,7 @@ def main(): #Killed
     # val_ds = splits['train']
     # test_ds = splits['test']
 
-    preprocessed_train_ds = train_ds.map(preprocess_images,  batched=True, features=features)
+    preprocessed_train_ds = train_ds.map(preprocess_images, batched=True, features=features)
     preprocessed_val_ds = val_ds.map(preprocess_images, batched=True, features=features)
     preprocessed_test_ds = test_ds.map(preprocess_images, batched=True, features=features)
 
@@ -154,10 +141,10 @@ def main(): #Killed
     trainer = Trainer(
         model,
         args,
-        train_dataset = preprocessed_train_ds,
-        eval_dataset = preprocessed_val_ds,
-        data_collator = data_collator,
-        compute_metrics = compute_metrics
+        train_dataset=preprocessed_train_ds,
+        eval_dataset=preprocessed_val_ds,
+        data_collator=data_collator,
+        compute_metrics=compute_metrics
     )
 
     trainer.train()
@@ -167,5 +154,6 @@ def main(): #Killed
 
     # https://theaisummer.com/hugging-face-vit/
 
-if __name__=="__main__":
+
+if __name__ == "__main__":
     main()

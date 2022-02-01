@@ -1,14 +1,12 @@
-from statistics import *
-
 def count_letters(target):
     return len(target)
 
-import nltk
 
 from nltk.corpus import wordnet as wn
 
 # import these modules
 from nltk.stem import WordNetLemmatizer
+
 lemmatizer = WordNetLemmatizer()
 
 
@@ -36,7 +34,6 @@ def has_prefix(initial_word, root=None, tokens=None):
     return ans
 
 
-
 def has_suffix(initial_word, root=None, tokens=None):
     tokens = word_tokenize(word) if tokens == None else tokens
     ans = []
@@ -60,6 +57,7 @@ def has_both_affixes(initial_word, root=None, tokens=None):
 
 
 from nltk.stem import PorterStemmer
+
 stemmer = PorterStemmer()
 
 
@@ -73,6 +71,7 @@ def get_base_word_pct_stem(initial_word, root=None, tokens=None):
     if len(ans):
         return mean(ans)
     return ans
+
 
 def has_prefix_stem(initial_word, root=None, tokens=None):
     tokens = word_tokenize(initial_word) if tokens == None else tokens
@@ -106,6 +105,7 @@ def has_both_affixes_stem(initial_word, root=None, tokens=None):
         return mean(ans)
     return ans
 
+
 def count_hypernyms(word, tokens=None):
     tokens = word_tokenize(word) if tokens == None else tokens
     ans = []
@@ -127,8 +127,9 @@ def count_hyponyms(word, tokens=None):
         return mean(ans)
     return ans
 
+
 import nltk
-from nltk.corpus import wordnet
+
 
 def count_antonyms(word, tokens=None):
     tokens = word_tokenize(word) if tokens == None else tokens
@@ -158,6 +159,7 @@ def count_synonyms(word, tokens=None):
         return mean(ans)
     return 0.0
 
+
 def count_meronyms(word, tokens=None):
     tokens = word_tokenize(word) if tokens == None else tokens
     ans = []
@@ -166,6 +168,7 @@ def count_meronyms(word, tokens=None):
     if len(ans):
         return mean(ans)
     return 0.0
+
 
 def count_part_meroynms(word, tokens=None):
     tokens = word_tokenize(word) if tokens == None else tokens
@@ -176,6 +179,7 @@ def count_part_meroynms(word, tokens=None):
         return mean(ans)
     return 0.0
 
+
 def count_substance_meroynms(word, tokens=None):
     tokens = word_tokenize(word) if tokens == None else tokens
     ans = []
@@ -185,6 +189,7 @@ def count_substance_meroynms(word, tokens=None):
         return mean(ans)
     return 0.0
 
+
 def count_holonyms(word, tokens=None):
     tokens = word_tokenize(word) if tokens == None else tokens
     ans = []
@@ -193,6 +198,7 @@ def count_holonyms(word, tokens=None):
     if len(ans):
         return mean(ans)
     return 0.0
+
 
 def count_part_holonyms(word, tokens=None):
     tokens = word_tokenize(word) if tokens == None else tokens
@@ -208,10 +214,11 @@ def count_substance_holonyms(word, tokens=None):
     tokens = word_tokenize(word) if tokens == None else tokens
     ans = []
     for token in tokens:
-         ans.append(sum([len(syn.substance_holonyms()) for syn in wordnet.synsets(token)]))
+        ans.append(sum([len(syn.substance_holonyms()) for syn in wordnet.synsets(token)]))
     if len(ans):
         return mean(ans)
     return 0.0
+
 
 def count_entailments(word, tokens=None):
     tokens = word_tokenize(word) if tokens == None else tokens
@@ -221,6 +228,7 @@ def count_entailments(word, tokens=None):
     if len(ans):
         return mean(ans)
     return 0.0
+
 
 def count_troponyms(word, tokens=None):
     tokens = word_tokenize(word) if tokens == None else tokens
@@ -235,6 +243,8 @@ def count_troponyms(word, tokens=None):
 from statistics import mean
 
 from nltk.tokenize import word_tokenize
+
+
 def count_definitions_average_tokens_length(word, tokens=None):
     tokens = word_tokenize(word) if tokens == None else tokens
     ans = []
@@ -248,6 +258,7 @@ def count_definitions_average_tokens_length(word, tokens=None):
         return mean(ans)
     return 0.0
 
+
 def count_definitions_average_characters_length(word, tokens=None):
     tokens = word_tokenize(word) if tokens == None else tokens
     ans = []
@@ -260,6 +271,7 @@ def count_definitions_average_characters_length(word, tokens=None):
     if len(ans):
         return mean(ans)
     return 0.0
+
 
 def count_definitions_tokens_length(word, tokens=None):
     tokens = word_tokenize(word) if tokens == None else tokens
@@ -283,23 +295,21 @@ def count_definitions_characters_length(word, tokens=None):
 
 import inflect
 
-
 inflect = inflect.engine()
+
 
 def is_singular(word):
     return int(inflect.singular_noun(word))
+
 
 def is_plural():
     return int(inflect.plural_noun(word))
 
 
-
-
-from collections import defaultdict
-
-
 from wordsegment import load, segment
+
 load()
+
 
 def check_word_compounding(word, tokens=None):
     tokens = word_tokenize(word) if tokens == None else tokens
@@ -331,12 +341,15 @@ def word_origin(word):
 # count_punctuations(target)
 from textblob import TextBlob
 
+
 def word_polarity(word):
     blob = TextBlob(word)
     return blob.sentiment.polarity
 
+
 def get_target_phrase_ratio(phrase, word):
     return len(word) / len(phrase)
+
 
 def get_phrase_len(phrase):
     return len(phrase)
@@ -348,14 +361,17 @@ def get_num_pos_tags(sentence, tokens=None):
     pos_tags = [pos_tag[1] for pos_tag in pos_tags]
     return len(set(pos_tags)) / len(tokens)
 
+
 def get_word_position_in_phrase(phrase, start_offset):
     return start_offset / len(phrase)
+
 
 def get_phrase_num_tokens(phrase):
     return len(word_tokenize(phrase))
 
 
 from nltk.corpus import wordnet
+
 
 def custom_wup_similarity(word1, word2):
     try:
@@ -364,6 +380,7 @@ def custom_wup_similarity(word1, word2):
         return syn1.wup_similarity(syn2)
     except:
         return 0.0
+
 
 def get_wup_avg_similarity(target, tokens=None):
     tokens = word_tokenize(target) if tokens is not None else tokens
@@ -378,6 +395,7 @@ def get_wup_avg_similarity(target, tokens=None):
             return mean(ans)
         return 0.0
 
+
 import pronouncing
 
 
@@ -389,6 +407,7 @@ def count_pronounciation_methods(word, tokens=None):
     if len(ans):
         return mean(ans)
     return 0.0
+
 
 def count_average_phonemes_per_pronounciation(word, tokens=None):
     tokens = word_tokenize(word) if tokens == None else tokens
@@ -403,6 +422,7 @@ def count_average_phonemes_per_pronounciation(word, tokens=None):
         return mean(ans)
     return 0.0
 
+
 def count_total_phonemes_per_pronounciations(word, tokens=None):
     tokens = word_tokenize(word) if tokens == None else tokens
     ans = []
@@ -411,6 +431,7 @@ def count_total_phonemes_per_pronounciations(word, tokens=None):
     if len(ans):
         return mean(ans)
     return 0.0
+
 
 def get_average_syllable_count(word, tokens=None):
     tokens = word_tokenize(word) if tokens == None else tokens
@@ -425,6 +446,7 @@ def get_average_syllable_count(word, tokens=None):
     if len(ans):
         return mean(ans)
     return 0.0
+
 
 def get_total_syllable_count(word, tokens=None):
     tokens = word_tokenize(word) if tokens == None else tokens
@@ -444,13 +466,15 @@ def count_capital_chars(text):
             count += 1
     return count
 
+
 def count_capital_words(text, tokens=None):
     tokens = word_tokenize(text) if tokens == None else tokens
     return sum(map(str.isupper, tokens))
 
+
 def count_punctuations(text):
     punctuations = """}!"#/$%'(*]+,->.:);=?&@\^_`{<|~["""
-    d=dict()
+    d = dict()
     res = []
     for i in punctuations:
         res.append(text.count(i))
@@ -458,7 +482,9 @@ def count_punctuations(text):
         return mean(res)
     return 0.0
 
+
 from wordfreq import word_frequency
+
 
 def get_word_frequency(target, tokens=None):
     tokens = word_tokenize(target) if tokens == None else tokens

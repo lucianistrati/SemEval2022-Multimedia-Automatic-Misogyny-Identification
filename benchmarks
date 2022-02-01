@@ -1,3 +1,46 @@
 count vectorizer doar peste meme texts cu xgb peste - B 60.9 pe public, A 61.0 pe public
 pe train a iesit cu 0.79 pe B, 0.76 pe A
 
+doar pe train ->
+count vectorizer
+A -  random forest 79.3% - 0.55
+B - random forest 80.7% - 0.55
+objectification - rf
+shaming - rf
+violence - rf
+stereotype -rf
+
+doar pe train -> finetunare la SVC
+tfidfvectorizer 63.55 - pe leaderboard
+B - svc 82.15%
+A - svc 79.80%
+
+
+first cleaning method: clean_text()
+******************************
+task b: 0.8186591714624605
+task a: 0.7840297324132964
+******************************
+
+second cleaning method: clean_tweet() - 63.46 fara lematizare pe public
+******************************
+task b: 0.8178346330457132
+task a: 0.787349592026311
+******************************
+
+# massive improvement with keeping the stopwords
+
+tot second dar cu tot cu stopwords
+******************************
+task b: 0.8229215667628347
+task a: 0.8006120126288256
+******************************
+
+****************************** # tot second dar cu stopwords si cu lemmatizare. slight worse preformance pe B cu 0.0028, dar better pe A cu 0.0011
+task b: 0.8201480735277661
+task a: 0.8011219167060921
+******************************
+
+third cleaning method: cleaner() - really really really really bad
+
+
