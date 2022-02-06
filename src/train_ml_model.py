@@ -1,17 +1,109 @@
+from copy import deepcopy
 from statistics import mean
 
 import numpy as np
 import pandas as pd
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import VotingClassifier
 from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
 from sklearn.metrics import f1_score
-from sklearn.model_selection import train_test_split
 # SVC fintuning links:
 # https://link.springer.com/chapter/10.1007/978-3-540-39857-8_33
 # https://scikit-learn.org/stable/modules/generated/sklearn.svm.SVC.html
 # https://medium.com/all-things-ai/in-depth-parameter-tuning-for-svc-758215394769
 # https://www.researchgate.net/publication/344386194_HOW_TO_FINE-TUNE_SUPPORT_VECTOR_MACHINES_FOR_CLASSIFICATION
+from sklearn.model_selection import cross_validate
+from sklearn.model_selection import train_test_split
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler
+from sklearn.svm import SVC
+from stringkernels.kernels import polynomial_string_kernel
+from stringkernels.kernels import string_kernel
+from tqdm import tqdm
+from xgboost import XGBClassifier
+
+from src.text_preprocess import embed_text
 
 POSSIBLE_LABELS = [0, 1]
+
+
+def cross_validation(model, X_train, y_train):
+    y_train = y_train[0]
+    cv_model = deepcopy(model)
+    cv_results = cross_validate(cv_model, X_train, y_train, cv=5, scoring="f1")
+    print("Cross validated:")
+    print(cv_results)
+    print(mean(cv_results))
+
+    X_train, X_val, y_train, y_val = train_test_split(X_train, y_train, test_size=0.2)
+    model.fit(X_train, y_train)
+    y_pred = model.predict(X_val)
+    print("Model with no CV:")
+    print(f1_score(y_pred, y_val))
+
+
+def ensemble_voting(X_train, y_train, X_test, submit=True):
+    scaler = StandardScaler()
+    estimators = [
+        ('logistic', SVC(class_weight="balanced")),
+        ('random_forest', RandomForestClassifier()),
+        ('xgb', XGBClassifier()),
+    ]
+    ensemble = Pipeline(steps=[("data_prep", scaler), ("voter", VotingClassifier(estimators))])
+    if submit:
+        ensemble.fit(X_train, y_train)
+        return ensemble.predict(X_test)
+    else:
+        X_train, X_val, y_train, y_val = train_test_split(X_train, y_train, test_size=0.2)
+        ensemble.fit(X_train, y_train)
+        y_pred = ensemble.predict(X_test)
+        print("Ensemble score:", f1_score(y_pred, y_val))
+
+
+def string_kernel_training(X_train, y_train, X_test, submit=False, kernel_option="poly"):
+    if submit:
+        if kernel_option == "poly":
+            model = SVC(kernel=polynomial_string_kernel())
+        elif kernel_option == "string":
+            model = SVC(kernel=string_kernel())
+        else:
+            raise Exception(f"Wrong kernel string option {kernel_option}")
+
+        predicted_labels_list = []
+        for i in range(len(y_train)):
+            model.fit(X_train, y_train[i])
+            predicted_labels_list.append(model.predict(X_test))
+        return predicted_labels_list
+    else:
+        # print(len(X_train), len(y_train))
+        X_train_copy = deepcopy(X_train)
+        y_train_copy = deepcopy(y_train)
+        for i in range(len(y_train)):
+            if kernel_option == "poly":
+                model = SVC(kernel=polynomial_string_kernel())
+            elif kernel_option == "string":
+                model = SVC(kernel=string_kernel())
+            else:
+                raise Exception(f"Wrong kernel string option {kernel_option}")
+
+            X_train, X_val, y_train, y_val = train_test_split(X_train_copy, y_train_copy[i], test_size=0.2)
+
+            X_train = np.reshape(X_train, newshape=(X_train.shape[0], 1))
+            y_train = np.reshape(y_train, newshape=(y_train.shape[0], 1))
+
+            X_val = np.reshape(X_val, newshape=(X_val.shape[0], 1))
+            y_val = np.reshape(y_val, newshape=(y_val.shape[0], 1))
+
+            print(X_train.shape, y_train.shape)
+            print(X_val.shape, y_val.shape)
+
+            model.fit(X_train, y_train)
+            y_pred = model.predict(X_val)
+            print("String kernel score:", f1_score(y_pred, y_val))
+
+
+def meme_patterns_clusterize():
+    pass
 
 
 def get_sample_weights(y_train):
@@ -21,10 +113,6 @@ def get_sample_weights(y_train):
         y=y_train
     )
     return classes_weights
-
-
-from sklearn.svm import SVC
-from sklearn.ensemble import RandomForestClassifier
 
 
 def load_computed_features(train_filenames, test_filenames, data_type="text"):
@@ -226,34 +314,25 @@ def extract_features(text):
     return None
 
 
-from tqdm import tqdm
-
-from src.text_preprocess import embed_text
+def flatten(t):
+    return [item for sublist in t for item in sublist]
 
 
 def main():
-    embedding_idx = -1
+    embedding_idx = 1
     embedding_model = ["count_vectorizer", "tfidfvectorizer", "handmade_features", "text_embedding", "computed_features"][embedding_idx]
     embedding_method = "bert_large"
 
-    print(embedding_model)
+    print(embedding_model, embedding_method)
 
     vectorizer = None
     if embedding_model == "count_vectorizer":
         vectorizer = CountVectorizer()
     elif embedding_model == "tfidfvectorizer":
-        vectorizer = TfidfVectorizer(max_features=15000)
-    # https://stackoverflow.com/questions/44066264/how-to-choose-parameters-in-tfidfvectorizer-in-sklearn-during-unsupervised-clust
+        vectorizer = TfidfVectorizer(max_features=10000)
 
     # model = XGBClassifier()
     df = pd.read_csv("data/TRAINING_csvs/training_no_bad_lines.csv")
-    print(len(df))
-    print(df.describe())
-
-    # exit()
-
-    def flatten(t):
-        return [item for sublist in t for item in sublist]
 
     print(df.head())
     texts = df['Text Transcription'].to_list()
@@ -331,10 +410,30 @@ def main():
 
     X_train = None
     X_test = None
-    X_train, X_test = load_computed_features(train_filenames, test_filenames, data_type="text")
+    # X_train, X_test = load_computed_features(train_filenames, test_filenames, data_type="text")
 
-    task_b(texts, labels, None, label_columns, submit=submit, submission_texts=test_texts,
-           file_paths=images_paths, embedding_model=embedding_model, X_train=X_train, X_test=X_test)
+    # texts = df['Text Transcription'].tolist()
+
+    use_string_kernels = False
+    use_cross_validation = False
+    use_ensemble_voting = False
+
+    if use_string_kernels:
+        print("String kernels:")
+        string_kernel_training(X_train=np.array(texts), y_train=np.array(labels), X_test=np.array(test_texts), submit=False)
+
+    if use_cross_validation:
+        print("Cross validation:")
+        cross_validation(XGBClassifier(), np.array(texts.toarray()), np.array(labels))
+
+    if use_ensemble_voting:
+        print("Ensemble voting:")
+        ensemble_voting(X_train=np.array(texts.toarray()), y_train=np.array(labels[0]), X_test=np.array(test_texts.toarray()), submit=False)
+
+    if not use_cross_validation and not use_cross_validation and not use_ensemble_voting:
+        task_b(texts, labels, None, label_columns, submit=submit, submission_texts=test_texts,
+               file_paths=images_paths, embedding_model=embedding_model, X_train=X_train, X_test=X_test)
+
     print(embedding_model)
     print("gpt2 image captioning")
 

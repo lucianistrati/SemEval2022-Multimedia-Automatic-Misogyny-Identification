@@ -1,6 +1,15 @@
+import matplotlib.pyplot as plt
+import numpy as np
 import tensorflow as tf
 from heat_map import plot_heatmap
+from sklearn.metrics import confusion_matrix, accuracy_score, \
+    classification_report
+from sklearn.metrics import f1_score, precision_score, recall_score, \
+    mean_squared_error, mean_absolute_error, r2_score
+from sklearn.utils import check_array
 from tensorflow.keras.callbacks import EarlyStopping, ReduceLROnPlateau
+
+EPSILON = 1e-10
 
 
 def empty_classif_loggings():
@@ -14,21 +23,10 @@ def empty_regress_loggings():
             ['MAD', 0.0]]
 
 
-from sklearn.metrics import f1_score, precision_score, recall_score, \
-    mean_squared_error, mean_absolute_error, r2_score
-from sklearn.metrics import confusion_matrix, accuracy_score, \
-    classification_report
-from sklearn.utils import check_array
-import numpy as np
-
-
 def mean_absolute_percentage_error(y_true, y_pred):
     y_true = check_array(y_true)
     y_pred = check_array(y_pred)
     return np.mean(np.abs((y_true - y_pred) / y_true)) * 100
-
-
-EPSILON = 1e-10
 
 
 def _error(actual: np.ndarray, predicted: np.ndarray):
@@ -230,9 +228,6 @@ def get_classif_perf_metrics(y_test, y_pred, model_name="",
                                                              separator=',', suppress_small=True)
 
     return logging_metrics_list
-
-
-import matplotlib.pyplot as plt
 
 
 def plot_loss_and_acc(history):

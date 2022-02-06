@@ -1,10 +1,8 @@
-# regressor models
 # https://www.programcreek.com/python/example/99826/xgboost.XGBRegressor
-
-# https://www.kaggle.com/jayatou/xgbregressor-with-gridsearchcv
-# https://www.kaggle.com/jayatou/xgbregressor-with-gridsearchcv
 # https://www.kaggle.com/jayatou/xgbregressor-with-gridsearchcv
 # https://codingdict.com/sources/py/xgboost/12190.html
+# https://www.analyticsvidhya.com/blog/2021/06/predict-future-sales-using-xgbregressor/
+
 from sklearn.metrics import mean_absolute_error
 from sklearn.model_selection import train_test_split
 from xgboost import XGBClassifier
@@ -19,7 +17,6 @@ def train_model(regressor, X_train, y_train, label_scaler):
 
 
 def finetune_xgb(X_train, y_train, X_test, label_scaler):
-    # https://www.analyticsvidhya.com/blog/2021/06/predict-future-sales-using-xgbregressor/
     max_depth_values = [5, 9, 10, 14]
     min_child_weight_values = [1, 5, 6, 10]
 
@@ -72,8 +69,6 @@ def finetune_xgb(X_train, y_train, X_test, label_scaler):
             best_alpha = alpha
 
     print("BEST ALPHA: ********", best_alpha)
-
-
 """
 alpha=0.3, subsample=1, cosample_bytree=1, max_depth=10, min_child_weight=1
 """

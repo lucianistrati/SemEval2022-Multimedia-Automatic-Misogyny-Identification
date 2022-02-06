@@ -281,19 +281,6 @@ def get_paper_features(phrase, target, start_offset, end_offset):
         for feature in num_features_:
             num_features.append(feature)
         test_data = target
-
-        # num_features.append(textstat.flesch_reading_ease(test_data))
-        # num_features.append(textstat.flesch_kincaid_grade(test_data))
-        # num_features.append(textstat.smog_index(test_data))
-        # num_features.append(textstat.coleman_liau_index(test_data))
-        # num_features.append(textstat.automated_readability_index(test_data))
-        # num_features.append(textstat.dale_chall_readability_score(test_data))
-        # num_features.append(textstat.difficult_words(test_data))
-        # num_features.append(textstat.linsear_write_formula(test_data))
-        # num_features.append(textstat.gunning_fog(test_data))
-
-        pos_features = None  # get_part_of_speech(target)
-
     """
     vectors = []
     for context_tok in context_tokens:
@@ -338,8 +325,6 @@ def get_paper_features(phrase, target, start_offset, end_offset):
     mean_cos_sim /= len(vectors)
     """
 
-    # num_features += [min_cos_sim, max_cos_sim, mean_cos_sim, sum_cos_sim]
-
     return num_features
 
 
@@ -354,4 +339,3 @@ if __name__ == '__main__':
         print(dir(synset))
         for lemma in synset.lemmas():
             print(lemma.name())
-    # print(get_context_tokens(phrase, start_offset, end_offset))

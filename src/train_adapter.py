@@ -8,25 +8,21 @@ import numpy as np
 from datasets import load_dataset
 from transformers import RobertaConfig, RobertaModelWithHeads
 from transformers import RobertaTokenizer
-from transformers import TextClassificationPipeline
 from transformers import TrainingArguments, AdapterTrainer, EvalPrediction
-from transformers import AutoModelForSequenceClassification, AdapterType
 
 
 def train_adapter():
-    # dataset preprocessing
     misogynous_dataset = load_dataset("src/huggingface_datasets/misogynous_dataset.py")
     shaming_dataset = load_dataset("src/huggingface_datasets/shaming_dataset.py")
     stereotype_dataset = load_dataset("src/huggingface_datasets/stereotype_dataset.py")
     objectification_dataset = load_dataset("src/huggingface_datasets/objectification_dataset.py")
     violence_dataset = load_dataset("src/huggingface_datasets/violence_dataset.py")
 
-    datasets = [violence_dataset, misogynous_dataset]
-    datasets_names = [ "violence_dataset", "misogynous_dataset"]
-    labels_names = ["violence_label", "misogynous_label"]
+    datasets = [misogynous_dataset, shaming_dataset, stereotype_dataset, objectification_dataset, violence_dataset]
+    datasets_names = ["misogynous_dataset", "shaming_dataset", "stereotype_dataset", "objectification_dataset", "violence_dataset"]
+    labels_names = ["misogynous_label", "shaming_label", "stereotype_label", "objectification_label", "violence_label"]
 
     # https://adapterhub.ml/
-
     # common_dataset = concatenate_datasets(dsets=[misogynous_dataset, shaming_dataset, stereotype_dataset, objectification_dataset, violence_dataset])
     num_epochs = 1
     for (dataset, dataset_name, label_name) in zip(datasets, datasets_names, labels_names):
@@ -117,6 +113,7 @@ def train_adapter():
 
 def main():
     train_adapter()
+
 
 if __name__ == '__main__':
     main()

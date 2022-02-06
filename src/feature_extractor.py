@@ -1,13 +1,26 @@
+from statistics import mean
+
+import ety
+import inflect
+import nltk
+import pronouncing
+from nltk.corpus import wordnet as wn
+from nltk.stem import PorterStemmer
+from nltk.stem import WordNetLemmatizer
+from nltk.tokenize import word_tokenize
+from textblob import TextBlob
+from wordfreq import word_frequency
+from wordsegment import load as load_wordsegment, segment
+
+inflect = inflect.engine()
+stemmer = PorterStemmer()
+lemmatizer = WordNetLemmatizer()
+
+load_wordsegment()
+
+
 def count_letters(target):
     return len(target)
-
-
-from nltk.corpus import wordnet as wn
-
-# import these modules
-from nltk.stem import WordNetLemmatizer
-
-lemmatizer = WordNetLemmatizer()
 
 
 def get_base_word_pct(initial_word, root=None, tokens=None):
@@ -35,7 +48,7 @@ def has_prefix(initial_word, root=None, tokens=None):
 
 
 def has_suffix(initial_word, root=None, tokens=None):
-    tokens = word_tokenize(word) if tokens == None else tokens
+    tokens = word_tokenize(initial_word) if tokens == None else tokens
     ans = []
     for token in tokens:
         root = lemmatizer.lemmatize(token) if root is None else root
@@ -56,14 +69,9 @@ def has_both_affixes(initial_word, root=None, tokens=None):
     return ans
 
 
-from nltk.stem import PorterStemmer
-
-stemmer = PorterStemmer()
-
-
 def get_base_word_pct_stem(initial_word, root=None, tokens=None):
     """the higher the more complex a word it is because it requires many subwords"""
-    tokens = word_tokenize(word) if tokens == None else tokens
+    tokens = word_tokenize(initial_word) if tokens == None else tokens
     ans = []
     for token in tokens:
         root = stemmer.stem(token) if root is None else root
@@ -96,7 +104,7 @@ def has_suffix_stem(initial_word, root=None, tokens=None):
 
 
 def has_both_affixes_stem(initial_word, root=None, tokens=None):
-    tokens = word_tokenize(word) if tokens == None else tokens
+    tokens = word_tokenize(initial_word) if tokens == None else tokens
     ans = []
     for token in tokens:
         root = stemmer.stem(token) if root is None else root
@@ -126,9 +134,6 @@ def count_hyponyms(word, tokens=None):
     if len(ans):
         return mean(ans)
     return ans
-
-
-import nltk
 
 
 def count_antonyms(word, tokens=None):
@@ -240,11 +245,6 @@ def count_troponyms(word, tokens=None):
     return 0.0
 
 
-from statistics import mean
-
-from nltk.tokenize import word_tokenize
-
-
 def count_definitions_average_tokens_length(word, tokens=None):
     tokens = word_tokenize(word) if tokens == None else tokens
     ans = []
@@ -293,22 +293,12 @@ def count_definitions_characters_length(word, tokens=None):
     return 0.0
 
 
-import inflect
-
-inflect = inflect.engine()
-
-
 def is_singular(word):
     return int(inflect.singular_noun(word))
 
 
-def is_plural():
+def is_plural(word):
     return int(inflect.plural_noun(word))
-
-
-from wordsegment import load, segment
-
-load()
 
 
 def check_word_compounding(word, tokens=None):
@@ -322,7 +312,6 @@ def check_word_compounding(word, tokens=None):
 
 
 def word_origin(word):
-    import ety
     origins = ety.origins(word)
     predominant_languages = ["french", "english", "german", "latin", "spanish", "italian", "russian", "greek"]
     mapping = {lang: 0 for lang in predominant_languages}
@@ -336,10 +325,6 @@ def word_origin(word):
         mapping[language] = origin.language.lower()
 
     return max(mapping, key=mapping.get)
-
-
-# count_punctuations(target)
-from textblob import TextBlob
 
 
 def word_polarity(word):
@@ -394,9 +379,6 @@ def get_wup_avg_similarity(target, tokens=None):
         if len(ans):
             return mean(ans)
         return 0.0
-
-
-import pronouncing
 
 
 def count_pronounciation_methods(word, tokens=None):
@@ -481,9 +463,6 @@ def count_punctuations(text):
     if len(res):
         return mean(res)
     return 0.0
-
-
-from wordfreq import word_frequency
 
 
 def get_word_frequency(target, tokens=None):

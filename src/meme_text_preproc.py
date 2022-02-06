@@ -1,8 +1,14 @@
+import re
+
 import contractions
+import numpy as np
 import spacy
 import unidecode
 from bs4 import BeautifulSoup
+from nltk.stem import WordNetLemmatizer
 from word2number import w2n
+
+lemmatizer = WordNetLemmatizer()
 
 nlp = spacy.load('en_core_web_md')
 
@@ -84,14 +90,6 @@ def text_preprocessing(text, accented_chars=True, contractions=True,
         if edit != "" and flag == True:
             clean_text.append(edit)
     return clean_text
-
-
-import re
-
-from nltk.stem import WordNetLemmatizer
-import numpy as np
-
-lemmatizer = WordNetLemmatizer()
 
 
 def clean_text(text):
