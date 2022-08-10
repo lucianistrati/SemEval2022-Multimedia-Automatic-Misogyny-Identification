@@ -1,10 +1,9 @@
 import csv
 import cv2
 import datasets
-from datasets.tasks import ImageClassification
+from datasets.tasks import ImageClassification, TextClassification
 import os
 
-from datasets.tasks import TextClassification, ImageClassification
 
 _DESCRIPTION = """MAMI"""
 
@@ -18,7 +17,10 @@ class VisionDataset(datasets.GeneratorBasedBuilder):
     """AG News topic classification dataset."""
 
     def _info(self):
-        labels = [0, 1]
+        """
+
+        :return:
+        """
         return datasets.DatasetInfo(
             description=_DESCRIPTION,
             features=datasets.Features(
@@ -33,6 +35,11 @@ class VisionDataset(datasets.GeneratorBasedBuilder):
         )
 
     def _split_generators(self, dl_manager):
+        """
+
+        :param dl_manager:
+        :return:
+        """
         train_path = "data/TRAINING/training_no_bad_lines_train.csv"
         val_path = "data/TRAINING/training_no_bad_lines_val.csv"
         test_path = "data/TRAINING/training_no_bad_lines_test.csv"
@@ -46,6 +53,11 @@ class VisionDataset(datasets.GeneratorBasedBuilder):
         ]
 
     def _generate_examples(self, filepath):
+        """
+
+        :param filepath:
+        :return:
+        """
         labels = [0, 1]
         with open(filepath, encoding="utf-8") as csv_file:
             csv_reader = csv.reader(

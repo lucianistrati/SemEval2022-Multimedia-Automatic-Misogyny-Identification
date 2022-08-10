@@ -11,9 +11,17 @@ from process_data import load_train_data, load_test_data
 
 
 def plot_wordcloud(text: str, label: int, classif_feature: str):
+    """
+
+    :param text:
+    :param label:
+    :param classif_feature:
+    :return:
+    """
     title = f'{classif_feature}_texts_labelled_as_{label}'
     background_color = "black" if label == 1 else "white"
-    wordcloud = WordCloud(max_font_size=50, max_words=100, background_color=background_color, stopwords=STOPWORDS).generate(text)
+    wordcloud = WordCloud(max_font_size=50, max_words=100, background_color=background_color,
+                          stopwords=STOPWORDS).generate(text)
     plt.figure()
     plt.imshow(wordcloud, interpolation="bilinear")
     plt.axis("off")
@@ -23,6 +31,14 @@ def plot_wordcloud(text: str, label: int, classif_feature: str):
 
 
 def text_visualization(dataset_texts, dataset_labels, label_idxs, label_columns):
+    """
+
+    :param dataset_texts:
+    :param dataset_labels:
+    :param label_idxs:
+    :param label_columns:
+    :return:
+    """
     for labels_idx in label_idxs:
         for label in [0, 1]:
             concat_text = ""
@@ -34,6 +50,13 @@ def text_visualization(dataset_texts, dataset_labels, label_idxs, label_columns)
 
 
 def plot_images_stack(images: List, label: int, classif_feature: str):
+    """
+
+    :param images:
+    :param label:
+    :param classif_feature:
+    :return:
+    """
     title = f'{classif_feature}_images_labelled_as_{label}'
     fig = plt.figure(figsize=(4, 4))
     columns = 4
@@ -51,6 +74,14 @@ def plot_images_stack(images: List, label: int, classif_feature: str):
 
 
 def image_visualization(dataset_images, dataset_labels, label_idxs, label_columns):
+    """
+
+    :param dataset_images:
+    :param dataset_labels:
+    :param label_idxs:
+    :param label_columns:
+    :return:
+    """
     for labels_idx in label_idxs:
         for label in [0, 1]:
             selected_images = []
@@ -63,6 +94,11 @@ def image_visualization(dataset_images, dataset_labels, label_idxs, label_column
 
 
 def dataframe_visualization(df):
+    """
+
+    :param df:
+    :return:
+    """
     label_columns = ["misogynous", "shaming", "stereotype", "objectification", "violence"]
 
     for label_column in label_columns:
@@ -80,13 +116,13 @@ def main():
     train_images, train_texts, train_labels = load_train_data("data/train_numpy_arrays")
     test_images, test_texts, test_labels = load_test_data("data/numpy_arrays")
     df = pd.read_csv("data/TRAINING_csvs/training.csv", delimiter='\t', error_bad_lines=False)
-    # import pdb
-    # pdb.set_trace()
+    print(len(train_images), len(test_images))
+    print(df.head())
     # df.to_csv("data/TRAINING/training_no_bad_lines.csv")
 
     label_columns = ["misogynous", "shaming", "stereotype", "objectification", "violence"]
     label_idxs = list(range(5))
-
+    print(label_idxs, label_columns)
     # text_visualization(train_texts, train_labels, label_idxs, label_columns)
     # image_visualization(train_images, train_labels, label_idxs, label_columns)
 

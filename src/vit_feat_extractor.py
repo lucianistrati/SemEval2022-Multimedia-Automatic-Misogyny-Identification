@@ -1,9 +1,13 @@
-import os
-
-import cv2
-import torch
-from PIL import Image
 from transformers import ViTFeatureExtractor, ViTModel
+from PIL import Image
+from tqdm import tqdm
+
+import numpy as np
+
+import torch
+import random
+import cv2
+import os
 
 
 # url = 'http://images.cocodataset.org/val2017/000000039769.jpg'
@@ -12,11 +16,23 @@ from transformers import ViTFeatureExtractor, ViTModel
 
 
 def np_to_pil(img):
+    """
+
+    :param img:
+    :return:
+    """
     return Image.fromarray(img)
 
 
 class ImageClassificationCollator:
+    """
+
+    """
     def __init__(self, feature_extractor):
+        """
+
+        :param feature_extractor:
+        """
         self.feature_extractor = feature_extractor
 
     def __call__(self, batch):
@@ -26,19 +42,17 @@ class ImageClassificationCollator:
 
 
 def image_feature_extraction(image):
+    """
+
+    :param image:
+    :return:
+    """
     feature_extractor = ViTFeatureExtractor.from_pretrained('google/vit-base-patch16-224-in21k')
     model = ViTModel.from_pretrained('google/vit-base-patch16-224-in21k')
     inputs = feature_extractor(images=image, return_tensors="pt")
     outputs = model(**inputs)
     last_hidden_states = outputs.last_hidden_state
-    # print(last_hidden_states.shape) # [1, 197, 768]
     return last_hidden_states
-    # pdb.set_trace()
-
-
-import random
-import numpy as np
-from tqdm import tqdm
 
 
 def main():

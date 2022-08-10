@@ -28,6 +28,13 @@ POSSIBLE_LABELS = [0, 1]
 
 
 def cross_validation(model, X_train, y_train):
+    """
+
+    :param model:
+    :param X_train:
+    :param y_train:
+    :return:
+    """
     y_train = y_train[0]
     cv_model = deepcopy(model)
     cv_results = cross_validate(cv_model, X_train, y_train, cv=5, scoring="f1")
@@ -43,6 +50,14 @@ def cross_validation(model, X_train, y_train):
 
 
 def ensemble_voting(X_train, y_train, X_test, submit=True):
+    """
+
+    :param X_train:
+    :param y_train:
+    :param X_test:
+    :param submit:
+    :return:
+    """
     scaler = StandardScaler()
     estimators = [
         ('logistic', SVC(class_weight="balanced")),
@@ -61,6 +76,15 @@ def ensemble_voting(X_train, y_train, X_test, submit=True):
 
 
 def string_kernel_training(X_train, y_train, X_test, submit=False, kernel_option="poly"):
+    """
+
+    :param X_train:
+    :param y_train:
+    :param X_test:
+    :param submit:
+    :param kernel_option:
+    :return:
+    """
     if submit:
         if kernel_option == "poly":
             model = SVC(kernel=polynomial_string_kernel())
@@ -103,10 +127,19 @@ def string_kernel_training(X_train, y_train, X_test, submit=False, kernel_option
 
 
 def meme_patterns_clusterize():
+    """
+
+    :return:
+    """
     pass
 
 
 def get_sample_weights(y_train):
+    """
+
+    :param y_train:
+    :return:
+    """
     from sklearn.utils import class_weight
     classes_weights = class_weight.compute_sample_weight(
         class_weight='balanced',
@@ -116,36 +149,23 @@ def get_sample_weights(y_train):
 
 
 def load_computed_features(train_filenames, test_filenames, data_type="text"):
-    path = "data/online_computed_numpy_arrays"
+    """
+
+    :param train_filenames:
+    :param test_filenames:
+    :param data_type:
+    :return:
+    """
     image_type = "po"
 
     if data_type.startswith("text"):
-        # X_train = np.load("data/online_computed_numpy_arrays/train_sentence_transformer_multi_qa_mpnet.npy", allow_pickle=True)
-        # X_test = np.load("data/online_computed_numpy_arrays/test_sentence_transformer_multi_qa_mpnet.npy", allow_pickle=True)
-        # X_train_1 = np.reshape(X_train, newshape=(X_train.shape[0], X_train.shape[-1]))
-        # X_test_1 = np.reshape(X_test, newshape=(X_test.shape[0], X_test.shape[-1]))
-
-        # X_train = np.load("data/online_computed_numpy_arrays/train_sentence_transformer.npy", allow_pickle=True)
-        # X_test = np.load("data/online_computed_numpy_arrays/test_sentence_transformer.npy", allow_pickle=True)
-        # X_train_2 = np.reshape(X_train, newshape=(X_train.shape[0], X_train.shape[-1]))
-        # X_test_2 = np.reshape(X_test, newshape=(X_test.shape[0], X_test.shape[-1]))
-
         X_train = np.load("data/online_computed_numpy_arrays/train_roberta_distil.npy", allow_pickle=True)
         X_test = np.load("data/online_computed_numpy_arrays/test_roberta_distil.npy", allow_pickle=True)
         X_train_3 = np.reshape(X_train, newshape=(X_train.shape[0], X_train.shape[-1]))
         X_test_3 = np.reshape(X_test, newshape=(X_test.shape[0], X_test.shape[-1]))
 
-        X_train_text = X_train_3  # , X_train_4))
-        X_test_text = X_test_3  # , X_test_4))
-
-        # X_train = np.load("data/online_computed_numpy_arrays/train_roberta.npy", allow_pickle=True)
-        # X_test = np.load("data/online_computed_numpy_arrays/test_roberta.npy", allow_pickle=True)
-        # X_train_4 = np.reshape(X_train, newshape=(X_train.shape[0], X_train.shape[-1]))
-        # X_test_4 = np.reshape(X_test, newshape=(X_test.shape[0], X_test.shape[-1]))
-
-        # X_train_text = np.hstack((X_train_2, X_train_3))#, X_train_4))
-        # X_test_text = np.hstack((X_test_2, X_test_3))#, X_test_4))
-
+        X_train_text = X_train_3
+        X_test_text = X_test_3
     if data_type.endswith("vision"):
         sorted_filenames_train = np.load("data/online_computed_numpy_arrays/train_image_filenames.npy", allow_pickle=True)
         sorted_filenames_test = np.load("data/online_computed_numpy_arrays/test_image_filenames.npy", allow_pickle=True)
@@ -196,11 +216,25 @@ def load_computed_features(train_filenames, test_filenames, data_type="text"):
     elif data_type == "vision":
         return X_train_vision, X_test_vision
     elif data_type == "text_vision":
-        return np.hstack((X_train_text, X_train_vision)), \
-               np.hstack((X_test_text, X_test_vision))
+        return np.hstack((X_train_text, X_train_vision)), np.hstack((X_test_text, X_test_vision))
 
 
-def task_b(texts, labels, model, label_columns, submit=False, submission_texts=None, file_paths=None, embedding_model="", X_train=None, X_test=None):
+def task_b(texts, labels, model, label_columns, submit=False, submission_texts=None, file_paths=None,
+           embedding_model="", X_train=None, X_test=None):
+    """
+
+    :param texts:
+    :param labels:
+    :param model:
+    :param label_columns:
+    :param submit:
+    :param submission_texts:
+    :param file_paths:
+    :param embedding_model:
+    :param X_train:
+    :param X_test:
+    :return:
+    """
     if X_train is not None:
         if embedding_model == "tfidfvectorizer":
             texts = texts.toarray()  # take a lot of time
@@ -217,7 +251,8 @@ def task_b(texts, labels, model, label_columns, submit=False, submission_texts=N
         else:
             submission_texts = X_test
     print(embedding_model)
-    scores = []
+
+    model_name = embedding_model
     best_task_a_score = 1e9
     best_task_a_model = ""
 
@@ -294,33 +329,43 @@ def task_b(texts, labels, model, label_columns, submit=False, submission_texts=N
                 scores.append(score)
                 print(label_columns[i], "-", pos_label, "-", score)
         print("*" * 30)
-        # print("model_name: ", model_name)
         print("task b:", mean(scores))
         print("task a:", mean(scores[:2]))
         print("*" * 30)
-        # if mean(scores) > best_task_b_score:
-        #     best_task_b_score = mean(scores)
-        #     best_task_b_model = model_name
-        #
-        # if mean(scores[:2]) > best_task_a_score:
-        #     best_task_a_score = mean(scores[:2])
-        #     best_task_a_model = model_name
+        if mean(scores) > best_task_b_score:
+            best_task_b_score = mean(scores)
+            best_task_b_model = model_name
 
-    # print("B:", best_task_b_model, best_task_b_score)
-    # print("A:", best_task_a_model, best_task_a_score)
+        if mean(scores[:2]) > best_task_a_score:
+            best_task_a_score = mean(scores[:2])
+            best_task_a_model = model_name
+
+    print("B:", best_task_b_model, best_task_b_score)
+    print("A:", best_task_a_model, best_task_a_score)
 
 
 def extract_features(text):
+    """
+
+    :param text:
+    :return:
+    """
     return None
 
 
 def flatten(t):
+    """
+
+    :param t:
+    :return:
+    """
     return [item for sublist in t for item in sublist]
 
 
 def main():
     embedding_idx = 1
-    embedding_model = ["count_vectorizer", "tfidfvectorizer", "handmade_features", "text_embedding", "computed_features"][embedding_idx]
+    embedding_model = ["count_vectorizer", "tfidfvectorizer", "handmade_features", "text_embedding",
+                       "computed_features"][embedding_idx]
     embedding_method = "bert_large"
 
     print(embedding_model, embedding_method)
@@ -408,6 +453,7 @@ def main():
     train_filenames = df["file_name"].to_list()
     test_filenames = test_df['file_name'].to_list()
 
+    print(len(train_filenames), len(test_filenames))
     X_train = None
     X_test = None
     # X_train, X_test = load_computed_features(train_filenames, test_filenames, data_type="text")
@@ -428,7 +474,8 @@ def main():
 
     if use_ensemble_voting:
         print("Ensemble voting:")
-        ensemble_voting(X_train=np.array(texts.toarray()), y_train=np.array(labels[0]), X_test=np.array(test_texts.toarray()), submit=False)
+        ensemble_voting(X_train=np.array(texts.toarray()), y_train=np.array(labels[0]),
+                        X_test=np.array(test_texts.toarray()), submit=False)
 
     if not use_cross_validation and not use_cross_validation and not use_ensemble_voting:
         task_b(texts, labels, None, label_columns, submit=submit, submission_texts=test_texts,

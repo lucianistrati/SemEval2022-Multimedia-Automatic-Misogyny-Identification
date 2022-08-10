@@ -1,19 +1,29 @@
-import numpy as np
-import os
+from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
+from sklearn.decomposition import PCA
+from sklearn.manifold import TSNE
 from typing import List
 
 import numpy as np
-from sklearn.decomposition import PCA
-from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
-from sklearn.manifold import TSNE
+
+import os
+
 
 numpy_arrays_path = "data/numpy_data"
 
 
 def load_data(embedding_feature: str = "target_word", embedding_model: str = "roberta"):
-    X_train = np.load(file=os.path.join(numpy_arrays_path, "X_train_" + embedding_feature + "_" + embedding_model + ".npy"), allow_pickle=True)
-    y_train = np.load(file=os.path.join(numpy_arrays_path, "y_train_" + embedding_feature + "_" + embedding_model + ".npy"), allow_pickle=True)
-    X_test = np.load(file=os.path.join(numpy_arrays_path, "X_test_" + embedding_feature + "_" + embedding_model + ".npy"), allow_pickle=True)
+    """
+
+    :param embedding_feature:
+    :param embedding_model:
+    :return:
+    """
+    X_train_filepath = os.path.join(numpy_arrays_path, "X_train_" + embedding_feature + "_" + embedding_model + ".npy")
+    y_train_filepath = os.path.join(numpy_arrays_path, "y_train_" + embedding_feature + "_" + embedding_model + ".npy")
+    X_test_filepath = os.path.join(numpy_arrays_path, "X_test_" + embedding_feature + "_" + embedding_model + ".npy")
+    X_train = np.load(file=X_train_filepath, allow_pickle=True)
+    y_train = np.load(file=y_train_filepath, allow_pickle=True)
+    X_test = np.load(file=X_test_filepath, allow_pickle=True)
 
     y_train = y_train.astype("float32")
 
@@ -23,6 +33,13 @@ def load_data(embedding_feature: str = "target_word", embedding_model: str = "ro
 
 
 def load_multiple_models(embedding_models: List[str], embedding_features: List[str], strategy: str = "averaging"):
+    """
+
+    :param embedding_models:
+    :param embedding_features:
+    :param strategy:
+    :return:
+    """
     X_train_list = []
     y_train_list = []
     X_test_list = []
@@ -31,9 +48,6 @@ def load_multiple_models(embedding_models: List[str], embedding_features: List[s
         X_train_list.append(X_train)
         y_train_list.append(y_train)
         X_test_list.append(X_test)
-
-    # print([x.shape for x in X_train_list])
-    # pdb.set_trace()
 
     if strategy == "averaging":
         X_train_list = np.array(X_train_list)
@@ -62,3 +76,11 @@ def load_multiple_models(embedding_models: List[str], embedding_features: List[s
         y_train = y_train_list[0]
         X_test = np.hstack(X_test_list)
     return X_train, y_train, X_test
+
+
+def main():
+    pass
+
+
+if __name__ == "__main__":
+    main()

@@ -12,6 +12,10 @@ from transformers import TrainingArguments, AdapterTrainer, EvalPrediction
 
 
 def train_adapter():
+    """
+
+    :return:
+    """
     misogynous_dataset = load_dataset("src/huggingface_datasets/misogynous_dataset.py")
     shaming_dataset = load_dataset("src/huggingface_datasets/shaming_dataset.py")
     stereotype_dataset = load_dataset("src/huggingface_datasets/stereotype_dataset.py")
@@ -19,11 +23,13 @@ def train_adapter():
     violence_dataset = load_dataset("src/huggingface_datasets/violence_dataset.py")
 
     datasets = [misogynous_dataset, shaming_dataset, stereotype_dataset, objectification_dataset, violence_dataset]
-    datasets_names = ["misogynous_dataset", "shaming_dataset", "stereotype_dataset", "objectification_dataset", "violence_dataset"]
+    datasets_names = ["misogynous_dataset", "shaming_dataset", "stereotype_dataset", "objectification_dataset",
+                      "violence_dataset"]
     labels_names = ["misogynous_label", "shaming_label", "stereotype_label", "objectification_label", "violence_label"]
 
     # https://adapterhub.ml/
-    # common_dataset = concatenate_datasets(dsets=[misogynous_dataset, shaming_dataset, stereotype_dataset, objectification_dataset, violence_dataset])
+    # common_dataset = concatenate_datasets(dsets=[misogynous_dataset, shaming_dataset, stereotype_dataset,
+    # objectification_dataset, violence_dataset])
     num_epochs = 1
     for (dataset, dataset_name, label_name) in zip(datasets, datasets_names, labels_names):
         print("*" * 100)
@@ -83,6 +89,11 @@ def train_adapter():
         )
 
         def compute_accuracy(p: EvalPrediction):
+            """
+
+            :param p:
+            :return:
+            """
             preds = np.argmax(p.predictions, axis=1)
             return {"acc": (preds == p.label_ids).mean()}
 

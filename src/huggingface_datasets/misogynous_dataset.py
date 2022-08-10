@@ -15,6 +15,10 @@ class MisogynousDataset(datasets.GeneratorBasedBuilder):
     """AG News topic classification dataset."""
 
     def _info(self):
+        """
+
+        :return:
+        """
         labels = [0, 1]
         return datasets.DatasetInfo(
             description=_DESCRIPTION,
@@ -34,6 +38,11 @@ class MisogynousDataset(datasets.GeneratorBasedBuilder):
         )
 
     def _split_generators(self, dl_manager):
+        """
+
+        :param dl_manager:
+        :return:
+        """
         train_path = "data/TRAINING_csvs/training_no_bad_lines_train_train.csv"
         test_path = "data/TRAINING_csvs/training_no_bad_lines_train_val.csv"
         return [
@@ -44,6 +53,11 @@ class MisogynousDataset(datasets.GeneratorBasedBuilder):
         ]
 
     def _generate_examples(self, filepath):
+        """
+
+        :param filepath:
+        :return:
+        """
         labels = [0, 1]
         with open(filepath, encoding="utf-8") as csv_file:
             csv_reader = csv.reader(

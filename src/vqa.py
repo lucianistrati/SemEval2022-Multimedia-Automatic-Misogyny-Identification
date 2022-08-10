@@ -1,11 +1,26 @@
 from sklearn.metrics.pairwise import cosine_similarity
-
+from transformers import RobertaTokenizer, RobertaModel
+from nltk.corpus import wordnet as wn
 from transformers import pipeline
+from statistics import mean
+
 
 model_name = "deepset/roberta-base-squad2"
+model_names = ["deep-learning-analytics/triviaqa-t5-base",
+               "google/t5-11b-ssm-tqa",
+               "google/t5-3b-ssm",
+               "google/t5-small-ssm-nq",
+               ]
+precomputed_embs = dict()
 
 
 def context_qa(question, context):
+    """
+
+    :param question:
+    :param context:
+    :return:
+    """
     # a) Get predictions
     nlp = pipeline('question-answering', model=model_name, tokenizer=model_name)
     QA_input = {
@@ -16,14 +31,12 @@ def context_qa(question, context):
     return res
 
 
-model_names = ["deep-learning-analytics/triviaqa-t5-base",
-               "google/t5-11b-ssm-tqa",
-               "google/t5-3b-ssm",
-               "google/t5-small-ssm-nq",
-               ]
-
-
 def open_qa(question):
+    """
+
+    :param question:
+    :return:
+    """
     #     nlp = pipeline('question-answering', model=model_names[0], tokenizer=model_name)
     #     QA_input = {
     #         'question': question,
@@ -37,19 +50,37 @@ def open_qa(question):
     return res
 
 
-from transformers import RobertaTokenizer, RobertaModel
+def load_roberta_tokenizer():
+    """
 
-roberta_tokenizer = RobertaTokenizer.from_pretrained('roberta-base')
-roberta_model = RobertaModel.from_pretrained('roberta-base')
+    :return:
+    """
+    return RobertaTokenizer.from_pretrained('roberta-base')
 
 
-def embed_text(text):
+def load_roberta_model():
+    """
+
+    :return:
+    """
+    return RobertaModel.from_pretrained('roberta-base')
+
+
+def embed_text(text, roberta_tokenizer=None, roberta_model=None):
+    """
+
+    :param text:
+    :param roberta_tokenizer:
+    :param roberta_model:
+    :return:
+    """
+    if roberta_tokenizer is None:
+        roberta_tokenizer = load_roberta_tokenizer()
+    if roberta_model is None:
+        roberta_model = load_roberta_model()
     encoded_input = roberta_tokenizer(text, return_tensors='pt')
     output = roberta_model(**encoded_input)
     return output.pooler_output
-
-
-precomputed_embs = dict()
 
 
 def text_similarity(text_1, text_2):
@@ -69,18 +100,18 @@ def text_similarity(text_1, text_2):
     return cosine_similarity(enc_1, enc_2)
 
 
-from nltk.corpus import wordnet as wn
-
-
 def get_definitions(word: str,
                     num_definitions: int = None):
+    """
+
+    :param word:
+    :param num_definitions:
+    :return:
+    """
     definitions = [synset.definition() for synset in wn.synsets(word)]
     if num_definitions:
         definitions = definitions[:num_definitions]
     return ".".join(definitions)
-
-
-from statistics import mean
 
 
 def main():
@@ -96,7 +127,10 @@ def main():
 
     sentences = ["women are stupid", "men and women are equal",
                  "men are superior", "tomorrow will rain"]
+
     ground_truth = [1, 0, 1, 0]
+
+    print(ground_truth)
 
     for label in labels:
         for sentence in sentences:
@@ -123,4 +157,5 @@ def main():
             print("*" * 20)
 
 
-main()
+if __name__ == "__main__":
+    main()

@@ -1,9 +1,27 @@
-import textstat
+from used_repos.personal.aggregated_personal_repos.semeval.src.feature_extractor import check_word_compounding, \
+    count_antonyms, count_average_phonemes_per_pronounciation, count_capital_chars, count_capital_words, \
+    count_definitions_average_characters_length, count_definitions_average_tokens_length, \
+    count_definitions_characters_length, count_definitions_tokens_length, count_entailments, count_holonyms, \
+    count_hypernyms, count_hyponyms, count_letters, count_meronyms, count_part_holonyms, count_part_meroynms, \
+    count_pronounciation_methods, count_punctuations, count_substance_holonyms, count_substance_meroynms, \
+    count_synonyms, count_total_phonemes_per_pronounciations, count_troponyms, custom_wup_similarity, \
+    get_average_syllable_count, get_base_word_pct, get_base_word_pct_stem, get_num_pos_tags, get_phrase_len, \
+    get_phrase_num_tokens, get_target_phrase_ratio, get_total_syllable_count, get_word_frequency, \
+    get_word_position_in_phrase, get_wup_avg_similarity, has_both_affixes, has_both_affixes_stem, has_prefix, \
+    has_prefix_stem, has_suffix, has_suffix_stem, is_plural, is_singular, mean, median, word_frequency, \
+    word_origin, word_polarity, word_tokenize
 
-textstat.set_lang("en")
+from tensorflow.python.ops.numpy_ops import np_config
+from nltk.tokenize import TreebankWordTokenizer as twt
+from nltk.corpus import wordnet
+from nltk import wordnet as wn
 
 import numpy as np
+
+import textstat
 import torch
+import nltk
+
 # from keras.layers import Dense
 # from keras.models import Sequential
 # from keras.wrappers.scikit_learn import KerasRegressor
@@ -13,33 +31,43 @@ from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.manifold import TSNE
 from typing import List
+from gensim.models import Word2Vec
 
-from src.feature_extractor import *
+
+def document_preprocess(text: str):
+    """
+
+    :param text:
+    :return:
+    """
+    return word_tokenize(text)
+
+
+textstat.set_lang("en")
+
+
+def load_word2vec_model():
+    """
+
+    :return:
+    """
+    return Word2Vec.load("src/embeddings_train/word2vec.model")
+
 
 PAD_TOKEN = "__PAD__"
-# word2vec_model = Word2Vec.load("src/embeddings_train/word2vec.model")
-
-numpy_arrays_path = "data/numpy_data"
-# word2vec_model = Word2Vec.load("src/embeddings_train/fasttext.model")
-
-# from src.embeddings_train.train_word2vec import document_preprocess
-
-
-# def document_preprocess(document):
-#     return document.lower().split()
-
-# word2vec_model = Word2Vec.load("src/embeddings_train/abcnews_word2vec.model")
-# word2vec_model = Word2Vec.load("src/embeddings_train/abcnews_word2vec.model.syn1neg.npy")
-# word2vec_model = Word2Vec.load("src/embeddings_train/abcnews_word2vec.model.wv.vectors.npy")
-
-from tensorflow.python.ops.numpy_ops import np_config
-
 np_config.enable_numpy_behavior()
+numpy_arrays_path = "data/numpy_data"
 
 
 def embed_text(text, embedding_model: str = "sentence_transformer", dl_framework="tf"):
-    """This function embedds the text given using an embedding model, it might also use the phrase, start_offset or the end_offset for certain embeddings"""
-    # print(embedding_model)
+    """
+    This function embedds the text given using an embedding model, it might also use the phrase, start_offset or
+    the end_offset for certain embeddings
+    :param text:
+    :param embedding_model:
+    :param dl_framework:
+    :return:
+    """
     if embedding_model == "roberta":
         from transformers import RobertaTokenizer, RobertaModel
         roberta_tokenizer = RobertaTokenizer.from_pretrained('roberta-base')
@@ -90,6 +118,7 @@ def embed_text(text, embedding_model: str = "sentence_transformer", dl_framework
         return embedding
     elif embedding_model == "word2vec_trained":
         try:
+            word2vec_model = load_word2vec_model()
             vector = word2vec_model.wv[document_preprocess(text)]
             vector = np.mean(vector, axis=0)
             vector = np.reshape(vector, (1, vector.shape[0]))
@@ -98,9 +127,16 @@ def embed_text(text, embedding_model: str = "sentence_transformer", dl_framework
             vector = np.random.rand(1, 300)
         return vector
     elif embedding_model == "paper_features":
+        phrase = ""
+        start_offset = 0
+        end_offset = -1
         return get_paper_features(phrase, text, start_offset, end_offset)
     elif embedding_model == "word2vec_trained_special":
         try:
+            phrase = ""
+            start_offset = 0
+            end_offset = -1
+            word2vec_model = load_word2vec_model()
             vector = word2vec_model.wv[text]
             vector = np.mean(vector, axis=0)
             vector = np.reshape(vector, (1, vector.shape[0]))
@@ -110,11 +146,14 @@ def embed_text(text, embedding_model: str = "sentence_transformer", dl_framework
         return vector
 
 
-from nltk.corpus import wordnet
-
-
 def count_word_senses(word, tokens=None):
-    tokens = word_tokenize(word) if tokens == None else tokens
+    """
+
+    :param word:
+    :param tokens:
+    :return:
+    """
+    tokens = word_tokenize(word) if tokens is None else tokens
     ans = []
     for token in tokens:
         ans.append(len(wordnet.synsets(token)))
@@ -124,15 +163,30 @@ def count_word_senses(word, tokens=None):
 
 
 def count_vowels(word):
+    """
+
+    :param word:
+    :return:
+    """
     return len([c for c in word if c in "aeiou"])
 
 
 def count_consonants(word):
+    """
+
+    :param word:
+    :return:
+    """
     consonants = "bcdfghjklmnpqrstvwxyz"
     return len([c for c in word if c in consonants])
 
 
 def count_double_consonants(word):
+    """
+
+    :param word:
+    :return:
+    """
     consonants = "bcdfghjklmnpqrstvwxyz"
     cnt = 0
     for i in range(len(word) - 1):
@@ -142,34 +196,58 @@ def count_double_consonants(word):
 
 
 def get_double_consonants_pct(word):
+    """
+
+    :param word:
+    :return:
+    """
     return count_double_consonants(word) / len(word)
 
 
 def get_vowel_pct(word):
+    """
+
+    :param word:
+    :return:
+    """
     return count_vowels(word) / len(word)
 
 
 def get_consonants_pct(word):
+    """
+
+    :param word:
+    :return:
+    """
     return count_consonants(word) / len(word)
 
 
-import nltk
-
-
 def get_part_of_speech(sentence, tokens=None):
-    tokens = word_tokenize(sentence) if tokens == None else tokens
+    """
+
+    :param sentence:
+    :param tokens:
+    :return:
+    """
+    tokens = word_tokenize(sentence) if tokens is None else tokens
     pos_tags = nltk.pos_tag(tokens)
     return " ".join([pos_tag[1] for pos_tag in pos_tags])
 
 
 def get_good_vectorizer():
+    """
+
+    :return:
+    """
     return TfidfVectorizer(analyzer='char_wb', n_gram_range=(1, 4))
 
 
-from nltk.tokenize import TreebankWordTokenizer as twt
-
-
 def spans(phrase):
+    """
+
+    :param phrase:
+    :return:
+    """
     return list(twt().span_tokenize(phrase))
 
 
@@ -177,17 +255,36 @@ stop_words = set(stopwords.words('english'))
 
 
 def count_sws(text, tokens=None):
-    if tokens == None:
+    """
+
+    :param text:
+    :param tokens:
+    :return:
+    """
+    if tokens is None:
         tokens = word_tokenize(text)
     return len([tok for tok in tokens if tok.lower() in stop_words])
 
 
 def get_sws_pct(text):
+    """
+
+    :param text:
+    :return:
+    """
     tokens = word_tokenize(text)
     return count_sws(text, tokens) / len(tokens)
 
 
 def get_context_tokens(phrase, start_offset, end_offset, context_size=1):  # try 2
+    """
+
+    :param phrase:
+    :param start_offset:
+    :param end_offset:
+    :param context_size:
+    :return:
+    """
     tokens = [PAD_TOKEN for _ in range(context_size)] + nltk.word_tokenize(phrase) + [PAD_TOKEN for _ in range(context_size)]
     tokens_spans = [(0, 0) for _ in range(context_size)] + spans(phrase) + [(0, 0) for _ in range(context_size)]
     for i, (l, r) in enumerate(tokens_spans):
@@ -196,7 +293,18 @@ def get_context_tokens(phrase, start_offset, end_offset, context_size=1):  # try
     return None
 
 
-def embed_multiple_models(texts, submission_texts, labels, embedding_models: List[str], embedding_features: List[str], strategy: str = "averaging"):
+def embed_multiple_models(texts, submission_texts, labels, embedding_models: List[str], embedding_features: List[str],
+                          strategy: str = "averaging"):
+    """
+
+    :param texts:
+    :param submission_texts:
+    :param labels:
+    :param embedding_models:
+    :param embedding_features:
+    :param strategy:
+    :return:
+    """
     X_train_list = []
     y_train_list = []
     X_test_list = []
@@ -241,17 +349,24 @@ ERRORS = 0
 
 
 def get_paper_features(phrase, target, start_offset, end_offset):
+    """
+
+    :param phrase:
+    :param target:
+    :param start_offset:
+    :param end_offset:
+    :return:
+    """
     context_tokens = get_context_tokens(phrase, start_offset, end_offset)
-    if context_tokens == None:
+    if context_tokens is None:
         context_tokens = []
-    word = target
     global ERRORS, GOOD
     target_ = target
 
     # so far 0.057701 just with target and the 24 features
     num_features = []
 
-    for target in [target_]:  # + context_tokens:
+    for target in [target_]:
         word = target
         num_features_ = [count_letters(target),
                          count_consonants(target),
@@ -280,55 +395,12 @@ def get_paper_features(phrase, target, start_offset, end_offset):
                          ]
         for feature in num_features_:
             num_features.append(feature)
-        test_data = target
-    """
-    vectors = []
-    for context_tok in context_tokens:
-        if context_tok == PAD_TOKEN:
-            continue
-        try:
-            # print(document_preprocess(context_tok))
-            vector = word2vec_model.wv[document_preprocess(context_tok)]
-            vector = np.mean(vector, axis=0)
-            vector = np.reshape(vector, (1, vector.shape[0]))
-            GOOD += 1
-        except KeyError:
-             # continue
-            vector = np.random.rand(1, 300)
-            ERRORS += 1
-        vectors.append(vector)
-
-    import scipy
-    try:
-        # print(document_preprocess(context_tok))
-        vector = word2vec_model.wv[document_preprocess(target)]
-        vector = np.mean(vector, axis=0)
-        vector = np.reshape(vector, (1, vector.shape[0]))
-        GOOD += 1
-    except KeyError:
-        vector = np.random.rand(1, 300)
-        ERRORS += 1
-
-    target_vector = vector
-
-    max_cos_sim = -1e18
-    min_cos_sim = 1e18
-    mean_cos_sim = 0.0
-
-    for vector in vectors:
-        ans = scipy.spatial.distance.cosine(np.reshape(vector, (vector.shape[-1], 1)), np.reshape(target_vector, (target_vector.shape[-1], 1)))
-        max_cos_sim = max(max_cos_sim, ans)
-        min_cos_sim = min(min_cos_sim, ans)
-        mean_cos_sim += ans
-
-    sum_cos_sim = copy.deepcopy(mean_cos_sim)
-    mean_cos_sim /= len(vectors)
-    """
+        # test_data = target
 
     return num_features
 
 
-if __name__ == '__main__':
+def main():
     phrase = "Both China and the Philippines flexed their muscles on Wednesday."
     start_offset = 56 + len("Wednesday")
     end_offset = 56 + len("Wednesday")
@@ -339,3 +411,7 @@ if __name__ == '__main__':
         print(dir(synset))
         for lemma in synset.lemmas():
             print(lemma.name())
+
+
+if __name__ == "__main__":
+    main()

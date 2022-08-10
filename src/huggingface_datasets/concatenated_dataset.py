@@ -15,6 +15,10 @@ class MisogynousDataset(datasets.GeneratorBasedBuilder):
     """AG News topic classification dataset."""
 
     def _info(self):
+        """
+
+        :return:
+        """
         labels = [0, 1]
         return datasets.DatasetInfo(
             description=_DESCRIPTION,
@@ -36,6 +40,11 @@ class MisogynousDataset(datasets.GeneratorBasedBuilder):
         )
 
     def _split_generators(self, dl_manager):
+        """
+
+        :param dl_manager:
+        :return:
+        """
         train_path = "data/TRAINING/training_no_bad_lines.csv"
         test_path = "data/TRAINING/training_no_bad_lines.csv"
         return [
@@ -46,6 +55,11 @@ class MisogynousDataset(datasets.GeneratorBasedBuilder):
         ]
 
     def _generate_examples(self, filepath):
+        """
+
+        :param filepath:
+        :return:
+        """
         labels = [0, 1]
         with open(filepath, encoding="utf-8") as csv_file:
             csv_reader = csv.reader(
@@ -59,7 +73,8 @@ class MisogynousDataset(datasets.GeneratorBasedBuilder):
                 stereotype_label = row[4]
                 violence_label = row[5]
                 text = row[-1]
-                if misogynous_label not in labels or objectification_label not in labels or shaming_label not in labels or stereotype_label not in labels or violence_label not in labels:
+                if misogynous_label not in labels or objectification_label not in labels or shaming_label not in \
+                        labels or stereotype_label not in labels or violence_label not in labels:
                     continue
                 yield id_, {"text": text, "misogynous_label": misogynous_label,
                             "objectification_label": objectification_label,

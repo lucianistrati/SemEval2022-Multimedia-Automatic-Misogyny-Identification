@@ -1,12 +1,11 @@
-import torch
 from torch import nn as nn
-
+from src.train_ml_model import load_computed_features
+# from src.train_transformer import TransformerModel
 from src.train_linear_transformer import instantiate_linear_attention_transformer
 from src.train_perceiver import instantiate_perceiver
 from src.train_performer import instantiate_performer
 from src.train_reformer import instantiate_reformer
 from src.train_sinkhorn_transformer import instantiate_sinkhorn_transformer
-# pytorch mlp for binary classification
 from numpy import vstack
 from sklearn.metrics import accuracy_score
 from torch.utils.data import Dataset
@@ -14,20 +13,30 @@ from torch.utils.data import DataLoader
 from torch import Tensor
 from torch.optim import Adam
 from torch.nn import CrossEntropyLoss
+from tqdm import tqdm
 
-from src.train_ml_model import load_computed_features
-from src.train_transformer import TransformerModel
+import numpy as np
+import pandas as pd
+
+import torch
 
 
 class TransformerModel(nn.Module):
+    """
+
+    """
+
     def __init__(self):
+        """
+
+        """
         super().__init__()
         num_classes = 2
         transformer_option = "perceiver"
         if transformer_option == "perceiver":
             self.image_transformer = instantiate_perceiver(input_channels=1, input_axis=1)
             self.text_transformer = instantiate_perceiver(input_channels=1, input_axis=1)
-            self.classif_transformer = instantiate_perceiver(input_channels=1, input_axis=1,  num_classes=num_classes)
+            self.classif_transformer = instantiate_perceiver(input_channels=1, input_axis=1, num_classes=num_classes)
         elif transformer_option == "reformer":
             self.image_transformer = instantiate_reformer(input_channels=1)
             self.text_transformer = instantiate_reformer(input_channels=1)
@@ -54,21 +63,22 @@ class TransformerModel(nn.Module):
         image_output = self.image_transformer(image_batch)
         text_output = self.text_transformer(text_batch)
         concat_output = torch.stack([image_output, text_output])
-        # import pdb
-        # pdb.set_trace()
-        concat_output = torch.reshape(input=concat_output, shape=(concat_output.shape[0], concat_output.shape[1] * concat_output.shape[2]))
+        concat_output = torch.reshape(input=concat_output,
+                                      shape=(concat_output.shape[0], concat_output.shape[1] * concat_output.shape[2]))
         concat_output = torch.unsqueeze(concat_output, dim=-1)
 
         output = self.classif_transformer(concat_output)
         return output
 
 
-import numpy as np
-import pandas as pd
-
-
 class MamiDataset(Dataset):
+    """
+
+    """
     def __init__(self):
+        """
+
+        """
         df = pd.read_csv("data/TRAINING_csvs/training_no_bad_lines.csv")
         test_df = pd.read_csv("data/test_csvs/Test_no_bad_lines.csv")
 
@@ -84,6 +94,7 @@ class MamiDataset(Dataset):
 
         X_train = np.hstack((X_train_text, X_train_vision))
         X_test = np.hstack((X_test_text, X_test_vision))
+        print(len(X_test))
 
         label_columns = ["misogynous", "shaming", "stereotype", "objectification", "violence"]
 
@@ -103,10 +114,13 @@ class MamiDataset(Dataset):
         return len(self.X)
 
 
-from tqdm import tqdm
-
-
 def train_model(train_dl, model):
+    """
+
+    :param train_dl:
+    :param model:
+    :return:
+    """
     # define the optimization
     criterion = CrossEntropyLoss()
     num_epochs = 10
@@ -130,6 +144,12 @@ def train_model(train_dl, model):
 
 
 def evaluate_model(test_dl, model):
+    """
+
+    :param test_dl:
+    :param model:
+    :return:
+    """
     predictions, actuals = list(), list()
     for i, (inputs, targets) in tqdm(enumerate(test_dl)):
         # evaluate the model on the test set
@@ -151,6 +171,12 @@ def evaluate_model(test_dl, model):
 
 # make a class prediction for one row of data
 def predict(row, model):
+    """
+
+    :param row:
+    :param model:
+    :return:
+    """
     # convert row to data
     row = Tensor([row])
     # make prediction
@@ -171,8 +197,6 @@ def main():  # Killed
     train_dl = DataLoader(train, batch_size=2, shuffle=True)
     test_dl = DataLoader(test, batch_size=2, shuffle=True)
 
-    num_classes = 2
-
     model = TransformerModel()
 
     # train the model
@@ -185,4 +209,3 @@ def main():  # Killed
 
 if __name__ == "__main__":
     main()
-

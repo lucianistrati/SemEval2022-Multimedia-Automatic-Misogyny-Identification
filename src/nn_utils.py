@@ -13,17 +13,31 @@ EPSILON = 1e-10
 
 
 def empty_classif_loggings():
+    """
+
+    :return:
+    """
     return [['F1', 0.0], ['Accuracy', 0.0], ['Normalized_confusion_matrix',
                                              0.0]]
 
 
 def empty_regress_loggings():
+    """
+
+    :return:
+    """
     return [['R2', 0.0], ['MAPE', 0.0], ['MAE', 0.0], ['MSE', 0.0], ['MDA',
                                                                      0.0],
             ['MAD', 0.0]]
 
 
 def mean_absolute_percentage_error(y_true, y_pred):
+    """
+
+    :param y_true:
+    :param y_pred:
+    :return:
+    """
     y_true = check_array(y_true)
     y_pred = check_array(y_pred)
     return np.mean(np.abs((y_true - y_pred) / y_true)) * 100
@@ -55,59 +69,6 @@ def mape(actual: np.ndarray, predicted: np.ndarray):
     return np.mean(np.abs(_percentage_error(actual, predicted)))
 
 
-def get_classif_perf_metrics(y_test, y_pred, model_name="",
-                             logging_metrics_list=empty_classif_loggings()):
-    for model_categoy in ["FeedForward", "Convolutional", "LSTM"]:
-        if model_categoy in model_name:
-            y_pred = np.array([np.argmax(pred) for pred in y_pred])
-            y_test = np.array([np.argmax(pred) for pred in y_test])
-    print("For " + model_name + " classification algorithm the following "
-                                "performance metrics were determined on the "
-                                "test set:")
-    number_of_classes = max(y_test) + 1
-    print("NUM CLASSES", number_of_classes)
-    if number_of_classes == 2:
-        for i in range(len(logging_metrics_list)):
-            if logging_metrics_list[i][0] == 'Accuracy':
-                logging_metrics_list[i][1] = str(accuracy_score(y_test, y_pred))
-            elif logging_metrics_list[i][0] == 'Precision':
-                logging_metrics_list[i][1] = str(precision_score(y_test,
-                                                                 y_pred))
-            elif logging_metrics_list[i][0] == 'Recall':
-                logging_metrics_list[i][1] = str(recall_score(y_test, y_pred))
-            elif logging_metrics_list[i][0] == 'F1':
-                logging_metrics_list[i][1] = str(f1_score(y_test, y_pred))
-
-        print("Accuracy: " + str(accuracy_score(y_test, y_pred)))
-        print("Precision: " + str(precision_score(y_test, y_pred)))
-        print("Recall: " + str(recall_score(y_test, y_pred)))
-    else:
-        for i in range(len(logging_metrics_list)):
-            if logging_metrics_list[i][0] == 'Classification_report':
-                logging_metrics_list[i][1] = str(
-                    classification_report(y_test, y_pred, digits=2))
-
-        print("Classification report: \n" + str(
-            classification_report(y_test, y_pred, digits=2)))
-
-    C = confusion_matrix(y_test, y_pred)
-    print("Confusion matrix:\n", C)
-    print("Normalized confusion matrix:\n",
-          np.around(C / C.astype(np.float).sum(axis=1), decimals=2))
-    for i in range(len(logging_metrics_list)):
-        if logging_metrics_list[i][0] == 'Confusion_matrix':
-            logging_metrics_list[i][1] = np.array2string(np.around(C,
-                                                                   decimals=2),
-                                                         precision=2,
-                                                         separator=',',
-                                                         suppress_small=True)
-        elif logging_metrics_list[i][0] == 'Normalized_confusion_matrix':
-            logging_metrics_list[i][1] = np.array2string(np.around(C / C.astype(np.float).sum(axis=1),
-                                                                   decimals=2), precision=2,
-                                                         separator=',', suppress_small=True)
-    return logging_metrics_list
-
-
 def mda(actual: np.ndarray, predicted: np.ndarray):
     """ Mean Directional Accuracy """
     return np.mean((np.sign(actual[1:] - actual[:-1]) == np.sign(predicted[1:] - predicted[:-1])).astype(int))
@@ -117,6 +78,16 @@ def get_regress_perf_metrics(y_test, y_pred, model_name="",
                              target_feature="",
                              logging_metrics_list=empty_regress_loggings(),
                              visualize_metrics=False):
+    """
+
+    :param y_test:
+    :param y_pred:
+    :param model_name:
+    :param target_feature:
+    :param logging_metrics_list:
+    :param visualize_metrics:
+    :return:
+    """
     if visualize_metrics:
         print("For " + model_name + " regression algorithm the following "
                                     "performance metrics were determined:")
@@ -155,6 +126,15 @@ def get_regress_perf_metrics(y_test, y_pred, model_name="",
 
 def get_classif_perf_metrics(y_test, y_pred, model_name="",
                              logging_metrics_list=empty_classif_loggings(), num_classes=1):
+    """
+
+    :param y_test:
+    :param y_pred:
+    :param model_name:
+    :param logging_metrics_list:
+    :param num_classes:
+    :return:
+    """
     for model_categoy in ["FeedForward", "Convolutional", "LSTM"]:
         if model_categoy in model_name:
             y_pred = np.array([np.argmax(pred) for pred in y_pred])
@@ -231,6 +211,11 @@ def get_classif_perf_metrics(y_test, y_pred, model_name="",
 
 
 def plot_loss_and_acc(history):
+    """
+
+    :param history:
+    :return:
+    """
     plt.plot(history.history["acc"], label="train")
     plt.plot(history.history["val_acc"], label="test")
 
@@ -251,6 +236,12 @@ def plot_loss_and_acc(history):
 
 
 def plot_multiple_metrics(history, model_name=""):
+    """
+
+    :param history:
+    :param model_name:
+    :return:
+    """
     # import pdb
     # pdb.set_trace()
     keys = list(history.history.keys())
@@ -267,6 +258,13 @@ def plot_multiple_metrics(history, model_name=""):
 
 
 def plot_metric(history, metric_name, model_name):
+    """
+
+    :param history:
+    :param metric_name:
+    :param model_name:
+    :return:
+    """
     if "acc" in history.history.keys() or "accuracy" in history.history.keys():
         if "accuracy" in history.history.keys():
             metric = history.history["accuracy"]
@@ -290,6 +288,18 @@ def plot_metric(history, metric_name, model_name):
 
 
 def train_nn(X_train, y_train, X_test, y_test, model_name, num_classes, class_weight=None, backbone_option="linear"):
+    """
+
+    :param X_train:
+    :param y_train:
+    :param X_test:
+    :param y_test:
+    :param model_name:
+    :param num_classes:
+    :param class_weight:
+    :param backbone_option:
+    :return:
+    """
     early_stopping = EarlyStopping(
         patience=5,  # how many epochs to wait before stopping
         min_delta=0.001,  # minimium amount of change to count as an improvement

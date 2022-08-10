@@ -2,6 +2,13 @@ from perceiver_pytorch import Perceiver
 
 
 def instantiate_perceiver(input_channels: int = None, input_axis: int = None, num_classes: int = None):
+    """
+
+    :param input_channels:
+    :param input_axis:
+    :param num_classes:
+    :return:
+    """
     model = Perceiver(
         input_channels=input_channels or 1,  # number of channels for each token of the input
         input_axis=input_axis or 1,  # number of axis for input data (2 for images, 3 for video)
@@ -19,7 +26,8 @@ def instantiate_perceiver(input_channels: int = None, input_axis: int = None, nu
         attn_dropout=0.,
         ff_dropout=0.,
         weight_tie_layers=False,  # whether to weight tie layers (optional, as indicated in the diagram)
-        fourier_encode_data=True,  # whether to auto-fourier encode the data, using the input_axis given. defaults to True, but can be turned off if you are fourier encoding the data yourself
+        fourier_encode_data=True,  # whether to auto-fourier encode the data, using the input_axis given. defaults to
+        # True, but can be turned off if you are fourier encoding the data yourself
         self_per_cross_attn=2  # number of self attention blocks per cross attention
     )
     return model

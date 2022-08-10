@@ -7,6 +7,13 @@ from tqdm import tqdm
 
 
 def parse_data_folder(folder_path: str, data_set: str, first_character: str):
+    """
+
+    :param folder_path:
+    :param data_set:
+    :param first_character:
+    :return:
+    """
     images_dict = dict()
     images = []
     texts = []
@@ -59,6 +66,11 @@ def parse_data_folder(folder_path: str, data_set: str, first_character: str):
 
 
 def merge_train_npy_arrays(folder_path: str) -> None:
+    """
+
+    :param folder_path:
+    :return:
+    """
     images = []
     texts = []
     labels = []
@@ -87,27 +99,40 @@ def merge_train_npy_arrays(folder_path: str) -> None:
 
 
 def load_train_data(folder_path: str):
-    return np.load(os.path.join(folder_path, "train_10_images.npy"), allow_pickle=True), \
-           np.load(os.path.join(folder_path, "train_10_texts.npy"), allow_pickle=True), \
-           np.load(os.path.join(folder_path, "train_10_labels.npy"), allow_pickle=True)
+    """
+
+    :param folder_path:
+    :return:
+    """
+    train_images = np.load(os.path.join(folder_path, "train_10_images.npy"), allow_pickle=True),
+    train_texts = np.load(os.path.join(folder_path, "train_10_texts.npy"), allow_pickle=True)
+    train_labels = np.load(os.path.join(folder_path, "train_10_labels.npy"), allow_pickle=True)
+    return train_images, train_texts, train_labels
 
 
 def load_test_data(folder_path: str):
-    return np.load(os.path.join(folder_path, "test_images.npy"), allow_pickle=True), \
-           np.load(os.path.join(folder_path, "test_texts.npy"), allow_pickle=True), \
-           np.load(os.path.join(folder_path, "test_labels.npy"), allow_pickle=True)
+    """
+
+    :param folder_path:
+    :return:
+    """
+    test_images = np.load(os.path.join(folder_path, "test_images.npy"), allow_pickle=True)
+    test_texts = np.load(os.path.join(folder_path, "test_texts.npy"), allow_pickle=True)
+    test_labels = np.load(os.path.join(folder_path, "test_labels.npy"), allow_pickle=True)
+    return test_images, test_texts, test_labels
 
 
 def main():
     train_path = "data/TRAINING"
     test_path = "data/trial"
-    list_of_files = {}
-    # merge_train_npy_arrays("data/train_numpy_arrays")
-    # for digit in range(10, 20):
-    #     parse_data_folder(train_path, "train", digit)
-    # parse_data_folder(test_path, "test")
+    merge_train_npy_arrays("data/train_numpy_arrays")
+    for digit in range(10, 20):
+        parse_data_folder(train_path, "train", digit)
+    parse_data_folder(test_path, "test", 10)
     train_images, train_texts, train_labels = load_train_data("data/train_numpy_arrays")
     test_images, test_texts, test_labels = load_test_data("data/numpy_arrays")
+
+    print(len(train_images), len(test_images))
 
 
 if __name__ == '__main__':

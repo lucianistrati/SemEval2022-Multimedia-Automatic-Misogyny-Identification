@@ -5,15 +5,28 @@ import pandas as pd
 
 
 def document_preprocess(document):
+    """
+
+    :param document:
+    :return:
+    """
     return document.lower().split()
 
 
 def load_wce_dataset():
+    """
+
+    :return:
+    """
     arr = np.load(file="data/wce_dataset.npy", allow_pickle=True)
     return [a for a in arr]
 
 
 def load_abcnews_dataset():
+    """
+
+    :return:
+    """
     arr = np.load(file="data/wce_dataset.npy", allow_pickle=True)
     df = pd.read_csv("data/abcnews-date-text.csv")
     return df['headline_text'].to_list() + [a for a in arr]

@@ -8,19 +8,25 @@ from transformers import AutoTokenizer, AutoModelForCausalLM
 # question answering squad2 pe engleza (roberta): deepset/roberta-base-squad2
 # perceiver multimodal to be tried
 
-ro_gpt2_models = ["readerbench/RoGPT2-base", "readerbench/RoGPT2-large", "readerbench/RoGPT2-medium"]
-tokenizer = AutoTokenizer.from_pretrained('readerbench/RoGPT2-base')
-model = AutoModelForCausalLM.from_pretrained('readerbench/RoGPT2-base')
-inputs = tokenizer.encode("Este o zi de vara", return_tensors='pt')
-text = model.generate(inputs, max_length=1024,  no_repeat_ngram_size=2)
-print(tokenizer.decode(text[0]))
 
-"""
-input:
-Este o zi de vara
+def main():
+    ro_gpt2_models = ["readerbench/RoGPT2-base", "readerbench/RoGPT2-large", "readerbench/RoGPT2-medium"]
+    print(ro_gpt2_models)
+    tokenizer = AutoTokenizer.from_pretrained('readerbench/RoGPT2-base')
+    model = AutoModelForCausalLM.from_pretrained('readerbench/RoGPT2-base')
+    inputs = tokenizer.encode("Este o zi de vara", return_tensors='pt')
+    text = model.generate(inputs, max_length=1024, no_repeat_ngram_size=2)
+    print(tokenizer.decode(text[0]))
 
-output:
-Este o zi de vara, cu soare, în care soarele strălucește în toată splendoarea sa. 
-Este ziua în amiaza mare, când soarele răsare la amiază. În această zi, soarele este la fel de strălucitor ca și luna.<|endoftext|>
-"""
+    """
+    input:
+    Este o zi de vara
+    output:
+    Este o zi de vara, cu soare, în care soarele strălucește în toată splendoarea sa.
+    Este ziua în amiaza mare, când soarele răsare la amiază. În această zi, soarele este la fel de strălucitor ca
+    și luna.<|endoftext|>
+    """
 
+
+if __name__ == "__main__":
+    main()
