@@ -1,5 +1,8 @@
+from typing import Dict, List, Set, Tuple, Optional, Any, Callable, NoReturn, Union, Mapping, Sequence, Iterable
 import torch
 from reformer_pytorch import Reformer
+
+import pdb
 
 
 def main():

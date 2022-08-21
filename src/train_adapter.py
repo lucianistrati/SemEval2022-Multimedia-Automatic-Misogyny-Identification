@@ -3,12 +3,15 @@
 # https://docs.adapterhub.ml/
 # https://github.com/Adapter-Hub/adapter-transformers/tree/master/notebooks
 # https://colab.research.google.com/github/Adapter-Hub/adapter-transformers/blob/master/notebooks/03_Adapter_Fusion.ipynb
+from typing import Dict, List, Set, Tuple, Optional, Any, Callable, NoReturn, Union, Mapping, Sequence, Iterable
 import numpy as np
 # from adapter_transformers import AutoModelForSequenceClassification, AdapterType
 from datasets import load_dataset
 from transformers import RobertaConfig, RobertaModelWithHeads
 from transformers import RobertaTokenizer
 from transformers import TrainingArguments, AdapterTrainer, EvalPrediction
+
+import pdb
 
 
 def train_adapter():

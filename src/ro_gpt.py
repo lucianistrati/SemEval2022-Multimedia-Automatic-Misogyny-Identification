@@ -1,3 +1,4 @@
+from typing import Dict, List, Set, Tuple, Optional, Any, Callable, NoReturn, Union, Mapping, Sequence, Iterable
 from transformers import AutoTokenizer, AutoModelForCausalLM
 
 # either GPT2 or another Question answering or text generation model
@@ -7,6 +8,8 @@ from transformers import AutoTokenizer, AutoModelForCausalLM
 # text generation pe engleza(gpt2): gpt2
 # question answering squad2 pe engleza (roberta): deepset/roberta-base-squad2
 # perceiver multimodal to be tried
+
+import pdb
 
 
 def main():

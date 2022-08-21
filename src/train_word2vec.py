@@ -1,3 +1,4 @@
+from typing import Dict, List, Set, Tuple, Optional, Any, Callable, NoReturn, Union, Mapping, Sequence, Iterable
 from dataset_loader import load_wce_dataset, load_abcnews_dataset
 from nltk.tokenize import word_tokenize
 from nltk.stem import WordNetLemmatizer
@@ -5,6 +6,7 @@ from gensim.models import Word2Vec
 from nltk.corpus import stopwords
 
 import multiprocessing
+import pdb
 
 
 def document_preprocess(document):

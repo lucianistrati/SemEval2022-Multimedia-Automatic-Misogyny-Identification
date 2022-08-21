@@ -1,3 +1,4 @@
+from typing import Dict, List, Set, Tuple, Optional, Any, Callable, NoReturn, Union, Mapping, Sequence, Iterable
 from transformers import ViTFeatureExtractor, ViTModel
 from PIL import Image
 from tqdm import tqdm
