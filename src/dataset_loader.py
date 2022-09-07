@@ -57,14 +57,16 @@ def main():
         elif 0.9 < num:
             test.append(text)
 
+    separator = "\n"
+
     with open("corpus/train/train.txt", "w") as f:
-        f.write("\n".join(train))
+        f.write(separator.join(train))
 
     with open("corpus/valid.txt", "w") as f:
-        f.write("\n".join(val))
+        f.write(separator.join(val))
 
     with open("corpus/test.txt", "w") as f:
-        f.write("\n".join(test))
+        f.write(separator.join(test))
 
 
 if __name__ == '__main__':
