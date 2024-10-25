@@ -1,4 +1,4 @@
-# Multimedia Automatic Misogyny Identification (MAMI)
+# Multimedia Automatic Misogyny Identification (MAMI) SemEval2022
 
 ## Project Overview
 
